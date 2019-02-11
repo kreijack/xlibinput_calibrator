@@ -1,4 +1,10 @@
 /*
+ * This code is derived from libinput sources:
+ * 			tools/shared.c
+ * 			tools/libinput-list-devices.c
+ */
+
+/*
  * Copyright © 2015 Red Hat, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -269,9 +275,9 @@ print_pad_info(struct libinput_device *device,MSS &ret)
 }
 
 static MSS
-fill_device_notify(struct libinput_event *ev)
+fill_device_notify(struct libinput_device *dev)
 {
-	struct libinput_device *dev = libinput_event_get_device(ev);
+
 	struct libinput_seat *seat = libinput_device_get_seat(dev);
 	struct libinput_device_group *group;
 	struct udev_device *udev_device;
@@ -447,22 +453,26 @@ out:
 }
 
 
-LMSS get_list_devices(std::string seat) {
+void iter_list_devices(std::string seat,
+		std::function<void(struct libinput_device *dev, const MSS &arg)> func) {
 	struct libinput *li;
 	struct libinput_event *ev;
 	bool grab = false;
 
 	li = tools_open_udev(seat.c_str(), false, &grab);
 	if (!li)
-		return {};
+		return;
 
 	LMSS ret;
 	libinput_dispatch(li);
 	while ((ev = libinput_get_event(li))) {
 
 		if (libinput_event_get_type(ev) == LIBINPUT_EVENT_DEVICE_ADDED) {
-			auto i = fill_device_notify(ev);
-			ret.push_back(std::move(i));
+			struct libinput_device *dev;
+			dev = libinput_event_get_device(ev);
+
+			auto i = fill_device_notify(dev);
+			func(dev, std::move(i));
 		}
 
 		libinput_event_destroy(ev);
@@ -471,9 +481,17 @@ LMSS get_list_devices(std::string seat) {
 
 	libinput_unref(li);
 
-	return ret;
 }
 
+LMSS get_list_devices(std::string seat) {
+	LMSS ret;
+	iter_list_devices(std::move(seat),
+		[&](struct libinput_device *dev, MSS arg) {
+			ret.push_back(std::move(arg));
+		}
+	);
+	return ret;
+}
 
 #ifdef DEBUG
 #include <iostream>
