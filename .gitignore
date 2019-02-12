@@ -1,1 +1,6 @@
-libinput-list-devices
+debug-*
+.d/
+xlibinput_calibrator
+version.cc
+*.o
+
