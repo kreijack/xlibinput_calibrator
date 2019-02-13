@@ -36,24 +36,25 @@
 
 #include <string>
 #include <stdexcept>
+#include <cassert>
 
 #include "gui_x11.hpp"
 
 
 // Timeout parameters
-const int time_step = 100;  // in milliseconds
-const int max_time = 15000; // 5000 = 5 sec
+static const int time_step = 100;  // in milliseconds
+static const int max_time = 15000; // 5000 = 5 sec
 
 // Clock appereance
-const int cross_lines = 25;
-const int cross_circle = 4;
-const int clock_radius = 50;
-const int clock_line_width = 10;
+static const int cross_lines = 25;
+static const int cross_circle = 4;
+static const int clock_radius = 50;
+static const int clock_line_width = 10;
 
 // Text printed on screen
-const int font_size = 16;
-const int help_lines = 4;
-const std::string help_text[help_lines] = {
+static const int font_size = 16;
+static const int help_lines = 4;
+static const std::string help_text[help_lines] = {
     "Touchscreen Calibration",
     "Press the point, use a stylus to increase precision.",
     "",
@@ -62,13 +63,7 @@ const std::string help_text[help_lines] = {
 
 // color management
 
-const char* colors[nr_colors] = {"BLACK", "WHITE", "GRAY", "DIMGRAY", "RED"};
-
-GuiCalibratorX11* GuiCalibratorX11::get_instance() {
-    static GuiCalibratorX11 instance;
-    return &instance;
-}
-
+static const char* colors[nr_colors] = {"BLACK", "WHITE", "GRAY", "DIMGRAY", "RED"};
 
 GuiCalibratorX11::GuiCalibratorX11()
   : time_elapsed(0)
@@ -135,13 +130,6 @@ GuiCalibratorX11::GuiCalibratorX11()
     gc = XCreateGC(display, win, 0, NULL);
     XSetFont(display, gc, font_info->fid);
 
-    // Setup timer for animation
-    signal(SIGALRM, sigalarm_handler);
-    struct itimerval timer;
-    timer.it_value.tv_sec = time_step/1000;
-    timer.it_value.tv_usec = (time_step % 1000) * 1000;
-    timer.it_interval = timer.it_value;
-    setitimer(ITIMER_REAL, &timer, NULL);
 }
 
 GuiCalibratorX11::~GuiCalibratorX11()
@@ -228,18 +216,18 @@ void GuiCalibratorX11::redraw()
                 clock_radius, clock_radius, 0, 360 * 64);
 }
 
-bool GuiCalibratorX11::on_expose_event()
+void GuiCalibratorX11::on_expose_event()
 {
     redraw();
-
-    return true;
 }
 
-bool GuiCalibratorX11::on_timer_signal()
+void GuiCalibratorX11::on_timer_signal()
 {
     time_elapsed += time_step;
     if (time_elapsed > max_time) {
-        exit(0);
+        do_loop = false;
+        return_value = false;
+        return;
     }
 
     // Update clock
@@ -250,11 +238,9 @@ bool GuiCalibratorX11::on_timer_signal()
                 (display_height-clock_radius+clock_line_width)/2,
                 clock_radius-clock_line_width, clock_radius-clock_line_width,
                 90*64, ((double)time_elapsed/(double)max_time) * -360 * 64);
-
-    return true;
 }
 
-bool GuiCalibratorX11::on_button_press_event(XEvent event)
+void GuiCalibratorX11::on_button_press_event(XEvent event)
 {
     // Clear window, maybe a bit overdone, but easiest for me atm.
     // (goal is to clear possible message and other clicks)
@@ -279,18 +265,20 @@ bool GuiCalibratorX11::on_button_press_event(XEvent event)
         success = true;
 
         if (success) {
-            exit(0);
+            return_value = true;
+            do_loop = false;
+            return;
         } else {
             // TODO, in GUI ?
             fprintf(stderr, "Error: unable to apply or save configuration values");
-            exit(1);
+            return_value = false;
+            do_loop = false;
+            return;
         }
     }
 
     // Force a redraw
     redraw();
-
-    return true;
 }
 
 void GuiCalibratorX11::draw_message(const char* msg)
@@ -330,25 +318,46 @@ void GuiCalibratorX11::give_timer_signal()
 
             case KeyPress:
                 /* FIXME */
-                exit(0);
+                return_value = false;
+                do_loop = false;
+                return;
                 break;
         }
     }
 }
 
-/*bool GuiCalibratorX11::set_instance(GuiCalibratorX11* W)
-{
-    bool wasSet = (instance != NULL);
-    instance = W;
-
-    return wasSet;
-}*/
-
-
 // handle SIGALRM signal, pass to singleton
 void GuiCalibratorX11::sigalarm_handler(int num)
 {
+    if (!the_instance)
+        return;
+
     if (num == SIGALRM) {
-        GuiCalibratorX11::get_instance()->give_timer_signal();
+        the_instance->give_timer_signal();
     }
+}
+
+bool GuiCalibratorX11::mainloop() {
+    assert(the_instance == nullptr);
+    do_loop = true;
+    the_instance = this;
+    // Setup timer for animation
+    signal(SIGALRM, sigalarm_handler);
+    struct itimerval timer;
+    timer.it_value.tv_sec = time_step/1000;
+    timer.it_value.tv_usec = (time_step % 1000) * 1000;
+    timer.it_interval = timer.it_value;
+    setitimer(ITIMER_REAL, &timer, NULL);
+
+    while(do_loop)
+        pause();
+
+    timer.it_value.tv_sec = 0;
+    timer.it_value.tv_usec = 0;
+    timer.it_interval = timer.it_value;
+    setitimer(ITIMER_REAL, &timer, NULL);
+    signal(SIGALRM, SIG_IGN);
+    the_instance = nullptr;
+
+    return return_value;
 }

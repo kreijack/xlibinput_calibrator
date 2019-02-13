@@ -102,10 +102,10 @@ class GuiCalibratorX11
 {
 public:
     ~GuiCalibratorX11();
-    static GuiCalibratorX11 *get_instance( );
+    bool mainloop();
+    GuiCalibratorX11();
 
 private:
-    GuiCalibratorX11();
     void give_timer_signal();
 
     // Data
@@ -124,9 +124,9 @@ private:
 
 
     // Signal handlers
-    bool on_timer_signal();
-    bool on_expose_event();
-    bool on_button_press_event(XEvent event);
+    void on_timer_signal();
+    void on_expose_event();
+    void on_button_press_event(XEvent event);
 
     // Helper functions
     void set_display_size(int width, int height);
@@ -134,7 +134,10 @@ private:
     void draw_message(const char* msg);
 
     Points points;
-public:
-    const Points &get_points() { return points; }
     static void sigalarm_handler(int num);
+    inline static GuiCalibratorX11 *the_instance = nullptr;
+    bool return_value;
+    bool do_loop;
+public:
+    const std::vector<Points::XY> get_points() { return points.data(); }
 };

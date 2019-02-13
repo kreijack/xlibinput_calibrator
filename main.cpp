@@ -25,17 +25,26 @@
 */
 
 #include <unistd.h>
+#include <cstdio>
 #include "gui_x11.hpp"
 
 int main(int argc, char** argv)
 {
     //Calibrator* calibrator = main_common(argc, argv);
 
-    GuiCalibratorX11::get_instance( );
+    GuiCalibratorX11 calib;
 
     // wait for timer signal, processes events
-    while(1)
-        pause();
+    auto ret = calib.mainloop();
+
+    if (ret) {
+        printf("Values:\n");
+        for( auto [x, y] : calib.get_points()) {
+            printf("  x=%d, y=%d\n", x, y);
+        }
+    } else {
+        printf("No results\n");
+    }
 
     //delete calibrator;
     return 0;
