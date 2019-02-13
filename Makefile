@@ -1,5 +1,5 @@
 CXXFLAGS=-Wall -pedantic -std=c++17
-SRCS=main.cpp gui_x11.cpp libinput-list-devices.cc version.cc
+SRCS=main.cpp gui_x11.cpp libinput-list-devices.cc version.cc libinput-devs.cc
 OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11
 LDFLAGS=-std=c++17
@@ -15,6 +15,12 @@ clean:
 debug-libinput-list-devices:libinput-list-devices.cc libinput-list-devices.hpp
 	$(CXX) $(CXXFLAGS) $(LIBS) -DDEBUG -o debug-libinput-list-devices \
 		libinput-list-devices.cc
+
+debug-libinput-devs: libinput-list-devices.cc libinput-devs.cc \
+			libinput-devs.hpp libinput-list-devices.hpp
+	$(CXX) $(CXXFLAGS) $(LIBS) -DDEBUG_LININPUT_DEVS \
+		-o debug-libinput-devs \
+		libinput-list-devices.cc libinput-devs.cc
 
 version.cc: .git/HEAD .git/index
 	echo "const char *gitversion = \"$(shell git describe --abbrev=4 --dirty --always --tags)\";" > $@

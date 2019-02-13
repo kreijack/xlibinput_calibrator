@@ -496,12 +496,17 @@ LMSS get_list_devices(std::string seat) {
 #ifdef DEBUG
 #include <iostream>
 int main(int argc, char **argv) {
-	const auto r = get_list_devices();
+	auto r = get_list_devices();
 	for(const auto &i : r) {
 		for(const auto &kv : i)
 			std::cout << kv.first << ":\t" << kv.second << "\n";
 		std::cout << "\n";
 	}
-
+	r = get_list_devices();
+	for(const auto &i : r) {
+		for(const auto &kv : i)
+			std::cout << kv.first << ":\t" << kv.second << "\n";
+		std::cout << "\n";
+	}
 }
 #endif
