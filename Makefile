@@ -1,5 +1,5 @@
 CXXFLAGS=-Wall -pedantic -std=c++17
-SRCS=main.cpp gui_x11.cpp libinput-list-devices.cc version.cc libinput-devs.cc
+SRCS=main.cpp gui_x11.cpp version.cc xinput.cc
 OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17
@@ -11,16 +11,6 @@ clean:
 	rm -f *.o
 	rm -f debug-*
 	rm -f xlibinput_calibrator
-
-debug-libinput-list-devices:libinput-list-devices.cc libinput-list-devices.hpp
-	$(CXX) $(CXXFLAGS) $(LIBS) -DDEBUG -o debug-libinput-list-devices \
-		libinput-list-devices.cc
-
-debug-libinput-devs: libinput-list-devices.o \
-			libinput-devs.hpp libinput-devs.cc
-	$(CXX) $(CXXFLAGS) $(LIBS) -DDEBUG \
-		-o debug-libinput-devs \
-		libinput-list-devices.o libinput-devs.cc
 
 debug-xinput: xinput.cc xinput.hpp
 	$(CXX) $(CXXFLAGS) $(LIBS) -o debug-xinput -DDEBUG xinput.cc
