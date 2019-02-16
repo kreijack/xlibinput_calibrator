@@ -472,7 +472,7 @@ void iter_list_devices(std::string seat,
 			dev = libinput_event_get_device(ev);
 
 			auto i = fill_device_notify(dev);
-			func(dev, std::move(i));
+			func(dev, i); //std::move(i));
 		}
 
 		libinput_event_destroy(ev);

@@ -37,8 +37,6 @@ static int vscount(const std::vector<std::string> &v, const std::string &s) {
 	return ret;
 }
 
-#include <cstdio>
-
 std::array<double,9> LibInputDevice::get_calibration_matrix() const {
 	std::array<double,9> ret;
 	const auto cs = str_split(info.at("Calibration"));
@@ -109,7 +107,7 @@ std::list<LibInputDevice> find_libinput_device(const std::string &seat,
 
 	return ret;
 }
-
+#include <cstdio>
 void LibInputDevice::update_device() {
 	iter_list_devices("seat0",
 		[&](struct libinput_device *dev,
@@ -120,15 +118,53 @@ void LibInputDevice::update_device() {
 
 		auto c = get_calibration_matrix();
 		float cf[6];
-		for (int i = 0 ; i < 6 ; i++)
+		for (int i = 0 ; i < 6 ; i++) {
 			cf[i] = c[i];
-		libinput_device_config_calibration_set_matrix(dev, cf);
+			fprintf(stderr, "c[%d]=%f\n",i, cf[i]);
+		}
+
+		if (libinput_device_config_calibration_has_matrix(dev)) {
+			fprintf(stderr, "The device haven't a calibration matrix\n");
+		}
+		auto ret = libinput_device_config_calibration_set_matrix(dev, cf);
+		switch (ret) {
+			case LIBINPUT_CONFIG_STATUS_SUCCESS:
+				fprintf(stderr, "Success\n");
+				break;
+			case LIBINPUT_CONFIG_STATUS_UNSUPPORTED:
+				fprintf(stderr, "LIBINPUT_CONFIG_STATUS_UNSUPPORTED\n");
+				break;
+			case LIBINPUT_CONFIG_STATUS_INVALID:
+				fprintf(stderr, "LIBINPUT_CONFIG_STATUS_INVALID\n");
+				break;
+			default:
+				fprintf(stderr, "Boh???\n");
+				break;
+		}
+		auto ret2 = libinput_device_config_calibration_get_matrix(dev, cf);
+		switch (ret2) {
+			case LIBINPUT_CONFIG_STATUS_SUCCESS:
+				fprintf(stderr, "Success\n");
+				break;
+			case LIBINPUT_CONFIG_STATUS_UNSUPPORTED:
+				fprintf(stderr, "LIBINPUT_CONFIG_STATUS_UNSUPPORTED\n");
+				break;
+			case LIBINPUT_CONFIG_STATUS_INVALID:
+				fprintf(stderr, "LIBINPUT_CONFIG_STATUS_INVALID\n");
+				break;
+			default:
+				fprintf(stderr, "Boh???\n");
+				break;
+		}
+		for (int i = 0 ; i < 6 ; i++)
+			fprintf(stderr, "%f ", cf[i]);
+		fprintf(stderr, "\n");
 
 	});
 }
 
 
-#ifdef DEBUG_LININPUT_DEVS
+#ifdef DEBUG
 #include <cassert>
 #include <cstdio>
 #include <iostream>
@@ -147,7 +183,7 @@ int main() {
 	auto l1 = find_libinput_device("seat0", {"touch"});
 	assert(l1.size() == 1);
 
-	auto &d = *l1.begin();
+	auto d = *l1.begin();
 	fprintf(stderr,"Cal matrix(%s, %s):",
 		d.get_description().c_str(), d.get_kernel_name().c_str());
 	for(auto x : d.get_calibration_matrix())
