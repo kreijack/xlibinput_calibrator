@@ -18,34 +18,27 @@ XInputTouch::~XInputTouch() {
     XCloseDisplay(display);
 }
 
-int XInputTouch::find_touch(const char *name)
+int XInputTouch::find_touch(std::vector<std::pair<XID,std::string>> &ret,
+                                    std::string_view name)
+
 {
     XDeviceInfo	*devices;
     int     found = -1;
     int		loop;
     int		num_devices;
 
+    ret.clear();
     devices = XListInputDevices(display, &num_devices);
 
     for (loop=0; loop<num_devices; loop++) {
-/*
-fprintf(stderr,"DEBUG: id=%lu, name = '%s', ",
-        devices[loop].id, devices[loop].name);
-if (devices[loop].type == xi_mouse)
-    fprintf(stderr,"XI_MOUSE\n");
-else if (devices[loop].type == xi_keyboard)
-    fprintf(stderr,"XI_KEYBOARD\n");
-else if (devices[loop].type == xi_touchscreen)
-    fprintf(stderr,"XI_TOUCHSCREEN\n");
-else
-    fprintf(stderr,"other (%lu)\n", devices[loop].type);
-*/
+
         if (devices[loop].type != xi_touchscreen)
             continue;
-        if (name && strcmp(devices[loop].name, name))
+        if (name.size() > 0 && name != devices[loop].name)
             continue;
 
-        found = devices[loop].id;
+        ret.push_back({devices[loop].id, devices[loop].name});
+        found = 0;
     }
 
     XFreeDeviceList(devices);

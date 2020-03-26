@@ -41,6 +41,15 @@
 #include "gui_x11.hpp"
 
 
+/// Names of the points
+enum {
+    UL = 0, // Upper-left
+    UR = 1, // Upper-right
+    LL = 2, // Lower-left
+    LR = 3,  // Lower-right
+    NUM_POINTS
+};
+
 // Timeout parameters
 static const int time_step = 100;  // in milliseconds
 static const int max_time = 15000; // 5000 = 5 sec
@@ -248,12 +257,14 @@ void GuiCalibratorX11::on_button_press_event(XEvent event)
 
     // Handle click
     time_elapsed = 0;
-    points.add_click(event.xbutton.x, event.xbutton.y);
-    bool success = points.is_valid();
+    bool success = add_click_ext(event.xbutton.x, event.xbutton.y);
 
     if (!success) {
         draw_message("Mis-click detected, restarting...");
         points.reset();
+        reset_ext();
+    } else {
+        points.add_click(event.xbutton.x, event.xbutton.y);
     }
 
     // Are we done yet?

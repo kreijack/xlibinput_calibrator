@@ -26,25 +26,43 @@
 
 #include <unistd.h>
 #include <cstdio>
+
 #include "gui_x11.hpp"
+#include "transform.hpp"
 
 int main(int argc, char** argv)
 {
-    //Calibrator* calibrator = main_common(argc, argv);
 
-    GuiCalibratorX11 calib;
+    GuiCalibratorX11 gui;
+    Calibrator  calib;
+
+    gui.set_add_click([&](int x, int y) -> bool{
+        return calib.add_click(x, y);
+    });
+    gui.set_reset([&](){
+        return calib.reset();
+    });
+
 
     // wait for timer signal, processes events
-    auto ret = calib.mainloop();
+    auto ret = gui.mainloop();
 
     if (ret) {
         printf("Values:\n");
-        for( auto [x, y] : calib.get_points()) {
+        for( auto [x, y] : gui.get_points()) {
             printf("  x=%d, y=%d\n", x, y);
         }
     } else {
         printf("No results\n");
     }
+
+    auto [w, h] = gui.get_display_size();
+
+    calib.finish(w, h);
+
+    calib.save_calibration();
+    calib.output_xinput();
+    calib.output_xorgconfd();
 
     //delete calibrator;
     return 0;

@@ -25,6 +25,8 @@
 
 #include <vector>
 #include <X11/Xlib.h>
+#include <functional>
+#include <utility>
 
 enum { BLACK=0, WHITE=1, GRAY=2, DIMGRAY=3, RED=4 };
 inline const int nr_colors = 5;
@@ -56,14 +58,6 @@ inline const int nr_colors = 5;
  */
 inline const int num_blocks = 8;
 
-// Names of the points
-enum {
-    UL = 0, // Upper-left
-    UR = 1, // Upper-right
-    LL = 2, // Lower-left
-    LR = 3  // Lower-right
-};
-
 class Points {
 public:
     struct XY {
@@ -81,15 +75,12 @@ private:
     void check_misclick() {
         /* TBD */
     }
+
 public:
     void add_click(int x, int y) {
-        if (mis_click || points.size() >= 4)
-            return;
         points.push_back({x, y});
-        check_misclick();
     }
     void reset() { _reset(); }
-    bool is_valid() { return !mis_click; }
     std::vector<XY> data() { return points; }
     size_t size() { return points.size(); }
 
@@ -138,6 +129,19 @@ private:
     inline static GuiCalibratorX11 *the_instance = nullptr;
     bool return_value;
     bool do_loop;
+
+    std::function<bool(int, int)> add_click_ext = [](int x, int y){ return true; };
+    std::function<void(void)> reset_ext = [](){ };
+
 public:
+    void set_add_click(std::function<bool(int, int)> f) {
+        add_click_ext = f;
+    }
+    void set_reset(std::function<void(void)> f) {
+        reset_ext = f;
+    }
+
     const std::vector<Points::XY> get_points() { return points.data(); }
+    std::pair<int, int> get_display_size() { return {display_width,
+                                                        display_height}; }
 };
