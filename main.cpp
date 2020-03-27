@@ -28,7 +28,7 @@
 #include <cstdio>
 
 #include "gui_x11.hpp"
-#include "transform.hpp"
+#include "calibration.hpp"
 
 int main(int argc, char** argv)
 {

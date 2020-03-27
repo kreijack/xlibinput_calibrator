@@ -32,7 +32,7 @@
 #include <cmath>
 #include <cassert>
 
-#include "transform.hpp"
+#include "calibration.hpp"
 
 #define LIBINPUTCALIBRATIONMATRIXPRO "libinput Calibration Matrix"
 
