@@ -110,9 +110,13 @@ int main(int argc, char** argv)
             show_conf_xinput = true;
         else if (arg == "--show-matrix")
             show_matrix = true;
-        else if (arg == "--start-matrix=")
+        else if (starts_with(arg, "--start-matrix="))
             start_coeff = arg.substr(15);
-        else {
+        else if (arg == "--help" || arg == "-h") {
+            show_help();
+            exit(0);
+        } else {
+            printf("ERROR: unknown parameter '%s'\n", argv[i]);
             show_help();
             exit(1);
         }
@@ -149,7 +153,7 @@ int main(int argc, char** argv)
         if (nr == 9) {
             calib.set_calibration(coeff);
         } else {
-            printf("ERROR: worng matrix; abort\n");
+            printf("ERROR: wrong matrix; abort\n");
             exit(1);
         }
     }
