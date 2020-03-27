@@ -90,29 +90,29 @@ int main(int argc, char** argv)
     for (int i = 1 ; i < argc ; i++) {
         const std::string_view arg{argv[i]};
 
-        if (starts_with(arg, "--output-file="))
+        if (starts_with(arg, "--output-file=")) {
             output_file = arg.substr(14);
-        else if (starts_with(arg, "--threshold-misclick="))
+        } else if (starts_with(arg, "--threshold-misclick=")) {
             thr_misclick = stoi(arg.substr(21));
-        else if (starts_with(arg, "--threshold-doubleclick="))
+        } else if (starts_with(arg, "--threshold-doubleclick=")) {
             thr_doubleclick = stoi(arg.substr(24));
-        else if (starts_with(arg, "--device-name="))
+        } else if (starts_with(arg, "--device-name=")) {
             device_name = std::string(arg.substr(14));
-        else if (starts_with(arg, "--device-id="))
+        } else if (starts_with(arg, "--device-id=")) {
             device_id = stou(arg.substr(12));
-        else if (arg == "--verbose")
+        } else if (arg == "--verbose") {
             verbose = true;
-        else if (arg == "--not-save")
+        } else if (arg == "--not-save") {
             not_save = true;
-        else if (arg == "--show-x11-config")
+        } else if (arg == "--show-x11-config") {
             show_conf_x11 = true;
-        else if (arg == "--show-xinput-config")
+        } else if (arg == "--show-xinput-config") {
             show_conf_xinput = true;
-        else if (arg == "--show-matrix")
+        } else if (arg == "--show-matrix") {
             show_matrix = true;
-        else if (starts_with(arg, "--start-matrix="))
+        } else if (starts_with(arg, "--start-matrix=")) {
             start_coeff = arg.substr(15);
-        else if (arg == "--help" || arg == "-h") {
+        } else if (arg == "--help" || arg == "-h") {
             show_help();
             exit(0);
         } else {
