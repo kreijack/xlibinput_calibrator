@@ -1,5 +1,5 @@
 CXXFLAGS=-Wall -pedantic -std=c++17
-SRCS=main.cpp gui_x11.cpp version.cc xinput.cc mat9.cc calibration.cc
+SRCS=main.cc gui_x11.cc version.cc xinput.cc mat9.cc calibration.cc
 OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17
@@ -11,7 +11,7 @@ clean:
 	rm -f debug-*
 	rm -f xlibinput_calibrator
 
-version.cc: .git/HEAD .git/index
+version.cc: ../.git/HEAD ../.git/index
 	echo "const char *gitversion = \"$(shell git describe --abbrev=4 --dirty --always --tags)\";" > $@
 
 

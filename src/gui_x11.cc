@@ -202,7 +202,7 @@ void GuiCalibratorX11::redraw()
     }
 
     // Draw the points
-    for (int i = 0; i <= points.size(); i++) {
+    for (unsigned i = 0; i <= points.size(); i++) {
         // set color: already clicked or not
         if (i < points.size())
             XSetForeground(display, gc, pixel[WHITE]);

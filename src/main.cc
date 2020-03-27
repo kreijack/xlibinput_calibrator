@@ -124,7 +124,7 @@ int main(int argc, char** argv)
         if (device_id != (XID)-1)
             printf("device-id:                %lu\n", device_id);
         else
-            printf("device-id:                <UNSET>\n", device_id);
+            printf("device-id:                <UNSET>\n");
         printf("device-name:              '%s'\n", device_name.c_str());
         printf("output-file:              '%s'\n", output_file.c_str());
         printf("threshold-misclick:       %d\n", thr_misclick);
