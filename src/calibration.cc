@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2009 Tias Guns
- * Copyright 2007 Peter Hutterer (xinput_ methods from xinput)
- * Copyright (c) 2011 Antoine Hue (invertX/Y)
+ * Copyright (c) 2020 Goffredo Baroncelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +20,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>

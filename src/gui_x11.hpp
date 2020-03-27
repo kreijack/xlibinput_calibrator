@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 Tias Guns
+ * Copyright (c) 2020 Goffredo Baroncelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +20,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 
 #pragma once
 
@@ -56,7 +56,6 @@ inline const int nr_colors = 5;
  *   |  |  |  |  |  |  |  |  |
  *   +--+--+--+--+--+--+--+--+
  */
-inline const int num_blocks = 8;
 
 class Points {
 public:
@@ -103,6 +102,7 @@ private:
     double X[4], Y[4];
     int display_width, display_height;
     int time_elapsed;
+    const int num_blocks = 8;
 
     // X11 vars
     Display* display;

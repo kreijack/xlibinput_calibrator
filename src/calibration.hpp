@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2009 Tias Guns
- * Copyright 2007 Peter Hutterer (xinput_ methods from xinput)
+ * Copyright (c) 2020 Goffredo Baroncelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,7 @@
  * THE SOFTWARE.
  */
 
-#ifndef CALIBRATOR_LIBINPUT_HPP
-#define CALIBRATOR_LIBINPUT_HPP
-
+#pragma once
 
 #include <X11/extensions/XInput.h>
 #include <cassert>
@@ -131,5 +129,3 @@ private:
     void setMatrix(const char *name, const Mat9 &coeff);
     void getMatrix(const char *name, Mat9 &coeff);
 };
-
-#endif
