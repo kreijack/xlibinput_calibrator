@@ -98,6 +98,12 @@ public:
     bool output_xinput(const std::string &nf = "");
     bool output_xorgconfd(const std::string &nf = "");
 
+    Mat9 get_coeff() { return result_coeff; }
+    void set_identity();
+
+    void setMatrix(const Mat9 &coeff);
+    void getMatrix(Mat9 &coeff);
+
 private:
 
     /// check whether the coordinates are along the respective axis

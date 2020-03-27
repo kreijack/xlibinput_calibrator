@@ -121,19 +121,23 @@ Calibrator::Calibrator(std::string device_name_,
 
     getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, old_coeff);
     reset_data = true;
+}
 
-    /* FIXME, allow to override initial coeff */
+void Calibrator::set_identity()
+{
     Mat9 coeff;
     mat9_set_identity(coeff);
     setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+}
 
+void Calibrator::getMatrix(Mat9 &coeff)
+{
     getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+}
 
-    printf("Calibrating Libinput driver for \"%s\" id=%lu\n",
-            device_name.c_str(), device_id);
-    printf("\tcurrent calibration values (from XInput):\n");
-    mat9_print(coeff);
-
+void Calibrator::setMatrix(const Mat9 &coeff)
+{
+    setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
 }
 
 
@@ -141,6 +145,19 @@ Calibrator::Calibrator(std::string device_name_,
 // KEEP IN SYNC with Calibrator::finish() !!
 bool Calibrator::finish(int width, int height)
 {
+
+
+    /* FIXME, allow to override initial coeff */
+
+    if (verbose) {
+        Mat9 coeff;
+        getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+        printf("Calibrating Libinput driver for \"%s\" id=%lu\n",
+                device_name.c_str(), device_id);
+        printf("\tcurrent calibration values (from XInput):\n");
+        mat9_print(coeff);
+    }
+
     if (get_numclicks() != NUM_POINTS) {
         return false;
     }
@@ -340,14 +357,6 @@ bool Calibrator::save_calibration()
 }
 
 bool Calibrator::set_calibration(const Mat9 &coeff) {
-    printf("\tSetting calibration data: {");
-    for (int i = 0 ; i < 9 ; i++) {
-        printf("%f", coeff[i]);
-        if (i < 8 )
-            printf(", ");
-    }
-    printf("}\n");
-
     try {
         setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
         reset_data = false;
@@ -494,9 +503,9 @@ bool Calibrator::output_xorgconfd(const std::string &output_filename)
 {
 
     if(output_filename.size() == 0)
-        printf("  copy the snippet below into '/etc/X11/xorg.conf.d/99-calibration.conf' (/usr/share/X11/xorg.conf.d/ in some distro's)\n");
+        printf("Copy the snippet below into '/etc/X11/xorg.conf.d/99-calibration.conf' (/usr/share/X11/xorg.conf.d/ in some distro's)\n");
     else
-        printf("  writing xorg.conf calibration data to '%s'\n", output_filename.c_str());
+        printf("Writing xorg.conf calibration data to '%s'\n", output_filename.c_str());
 
     // xorg.conf.d snippet
     char line[2000];

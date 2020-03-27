@@ -11,9 +11,6 @@ clean:
 	rm -f debug-*
 	rm -f xlibinput_calibrator
 
-debug-xinput: xinput.cc xinput.hpp
-	$(CXX) $(CXXFLAGS) $(LIBS) -o debug-xinput -DDEBUG xinput.cc
-
 version.cc: .git/HEAD .git/index
 	echo "const char *gitversion = \"$(shell git describe --abbrev=4 --dirty --always --tags)\";" > $@
 
