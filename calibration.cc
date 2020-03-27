@@ -65,42 +65,6 @@ void Calibrator::getMatrix(const char *name, Mat9 &coeff) {
     for (unsigned int i = 0 ; i < 9 ; i++)
         coeff[i] = std::stod(values[i]);
 
-
-
-#if 0
-    Atom float_atom = XInternAtom(display, "FLOAT", false);
-
-    // get "Evdev Axis Calibration" property
-    Atom property = xinput_parse_atom(name);
-
-    Atom            act_type;
-    int             act_format;
-    unsigned long   nitems, bytes_after;
-    unsigned char   *data, *data_ptr;
-
-    if (XGetDeviceProperty(display, dev, property, 0, 1000, False,
-                           AnyPropertyType, &act_type, &act_format,
-                           &nitems, &bytes_after, &data) != Success) {
-        throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
-    }
-
-    if (act_type != float_atom || act_format != 32) {
-        XFree(data);
-        throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property format");
-
-    }
-
-    int size = sizeof(long);
-    data_ptr = data;
-    mat9_set_identity(coeff);
-    for (unsigned int i = 0 ; i < nitems ; i++) {
-        coeff[i] = *((float *)data_ptr);
-        data_ptr += size;
-    }
-
-    XFree(data);
-
-#endif
 }
 
 void Calibrator::setMatrix(const char *name, const Mat9 &coeff) {
