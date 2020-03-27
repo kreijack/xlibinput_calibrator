@@ -20,15 +20,13 @@
  * THE SOFTWARE.
  */
 
-/*#include "main_common.hpp"
-#include "gui/gui_x11.cpp"
-*/
-
 #include <unistd.h>
 #include <cstdio>
 
 #include "gui_x11.hpp"
 #include "calibration.hpp"
+
+extern const char *gitversion;
 
 void show_help() {
     printf("usage: xlibinput_calibrator [opts]\n"
@@ -44,6 +42,9 @@ void show_help() {
         "--not-save                    don't update X11 setting\n"
         "--matrix=x1,x2..x9            start coefficent matrix\n"
         "\n"
+        "version: %s\n"
+        "\n",
+        gitversion
     );
 }
 
