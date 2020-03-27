@@ -138,8 +138,6 @@ int main(int argc, char** argv)
     Calibrator  calib(device_name, device_id, thr_misclick, thr_doubleclick,
                         verbose);
 
-    Mat9 old_coeff;
-    calib.getMatrix(old_coeff);
     if (start_coeff.size() == 0) {
         calib.set_identity();
     } else {
@@ -194,8 +192,6 @@ int main(int argc, char** argv)
 
     if (!not_save)
         calib.save_calibration();
-    else
-        calib.set_calibration(old_coeff);
 
     if (show_conf_x11)
         calib.output_xorgconfd(output_file);

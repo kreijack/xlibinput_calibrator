@@ -350,6 +350,8 @@ bool Calibrator::save_calibration()
 
     // close
     XSync(display, False);
+    reset_data = false;
+
 
     return success;
 }
@@ -357,7 +359,6 @@ bool Calibrator::save_calibration()
 bool Calibrator::set_calibration(const Mat9 &coeff) {
     try {
         setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
-        reset_data = false;
     } catch(...) {
         if (verbose)
             printf("DEBUG: Failed to apply axis calibration.\n");

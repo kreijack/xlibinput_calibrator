@@ -63,6 +63,8 @@ public:
                     bool verbose = false);
 
     ~Calibrator() {
+        if (reset_data)
+            set_calibration(old_coeff);
         if (display)
             XCloseDisplay(display);
     }
