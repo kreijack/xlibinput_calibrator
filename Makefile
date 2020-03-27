@@ -3,7 +3,6 @@ SRCS=main.cpp gui_x11.cpp version.cc xinput.cc mat9.cc transform.cc
 OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17
-LIBS += -linput -ludev
 
 all: xlibinput_calibrator
 
