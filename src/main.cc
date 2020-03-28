@@ -25,7 +25,7 @@
 #include <cstdio>
 
 #include "gui_x11.hpp"
-#include "calibration.hpp"
+#include "calibrator.hpp"
 
 extern const char *gitversion;
 

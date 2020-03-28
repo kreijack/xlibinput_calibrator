@@ -1,5 +1,5 @@
 CXXFLAGS=-Wall -pedantic -std=c++17
-SRCS=main.cc gui_x11.cc version.cc xinput.cc mat9.cc calibration.cc
+SRCS=main.cc gui_x11.cc version.cc xinput.cc mat9.cc calibrator.cc
 OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17

@@ -30,7 +30,7 @@
 #include <cmath>
 #include <cassert>
 
-#include "calibration.hpp"
+#include "calibrator.hpp"
 
 #define LIBINPUTCALIBRATIONMATRIXPRO "libinput Calibration Matrix"
 
