@@ -1,0 +1,91 @@
+.TH xlibinout_calibrator 8
+.SH NAME
+xlibinput_calibrator \- calibrate a X11 touch screen device
+.SH SYNOPSIS
+.B xlibinput_calibrator
+[\fB\-\-output-file-x11-config=\fIfilename\fR]
+[\fB\-\-output-file-xinput-cmd=\fIfilename\fR]
+[\fB\-\-threshold-misclick=\fInn\fR]
+[\fB\-\-threshold-doubleclick=\fInn\fR]
+[\fB\-\-device-name=\fIdevname\fR]
+[\fB\-\-show-x11-config\fR]
+[\fB\-\-show-xinput-cmd\fR]
+[\fB\-\-show-matrix\fR]
+[\fB\-\-verbose\fR]
+[\fB\-\-dont-save\fR]
+[\fB\-\-matrix=\fIx1,x2..x9\fR]
+
+.SH DESCRIPTION
+.B xlibinout_calibrator
+calibrates a touch screen setting the so called libinput \fImatrix calibration\fR
+using the \fIxinput\fR interfaces.
+
+The possible outcomes of this command are: set a new X11 configuration;
+create a new configuration file for X11; show the xinput command option
+to set the new \fImatrix calibration\fR.
+
+.SH OPTIONS
+
+.TP
+.BR \fB\-\-output-file-x11-config=\fIfilename\fR
+Set the filename where the X11 configuration will be saved.
+Implies \fB\-\-show-x11-config\fR.
+
+.TP
+.BR \fB\-\-output-file-xinput-cmd=\fIfilename\fR
+Set the filename where the xinput command will be saved. Implies
+\fB\-\-show-xinput-cmd\fR.
+
+.TP
+.BR \fB\-\-threshold-misclick=\fInn\fR
+Set the threshold for accept or reject a click. The four clicks have to
+be the in the corners of a rectagle. The value passed are the maximum
+allowable distance between the click and the ideal point. If the value is
+0 (default), the check is not performed.
+
+.TP
+.BR \fB\-\-threshold-doubleclick=\fInn\fR
+Set the threshold for accept or reject a click. It sets the minimum
+distance between clicks to accept them. If the value is 0 (default),
+the check is not performed.
+
+.TP
+.BR \fB\-\-device-name=\fIdevname\fR \  \fB\-\-device-id=\fIdevice-id\fR
+\fBxlibinput_calibrator\fR selects automatically the device to operate.
+If for some reason this is not possible (avaliability of multiple devices),
+it is possible to select explicitly the device with \fB\-\-device-id=\fR or
+\fB\-\-device-name=\fR options (the former takes precedence).
+
+.TP
+.BR \fB\-\-show-x11-config\fR
+Show the the \fBX11\fR file configuration with the new \fImatrix calibration\fR.
+
+.TP
+.BR \fB\-\-show-xinput-cmd\fR
+Show the the \fBxinput\fR command to the the \fImatrix calibration\fR.
+
+.TP
+.BR \fB\-\-show-matrix\fR
+Show the final matrix when the program ends.
+
+.TP
+.BR \fB\-\-verbose\fR
+Be verbose.
+
+.TP
+.BR \fB\-\-dont-save\fR
+Don't save the setting in X11 when the program ends.
+
+.TP
+.BR \fB\-\-matrix=\fIx1,x2..x9\fR
+Sets the intial matrix before doing the calibration. By default
+\fBxlibinput_calibrator\fR sets the calibration matrix to the identity
+(i.e. all 1 in the diagonal). With this option it is possible to set
+another matrix. Note that if something goes wrong or the calibration
+fails, the original matrix is set in X11.
+
+.SH OPTIONS
+xinput_calibrator(8)
+
+.SH AUTHORS
+Goffredo Baroncelli <kreijack@inwind.it>
