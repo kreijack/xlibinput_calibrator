@@ -4,3 +4,4 @@ xlibinput_calibrator
 version.cc
 *.o
 
+uinput-touch-simulator/uinput-touch-simulation
