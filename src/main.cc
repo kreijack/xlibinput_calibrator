@@ -41,7 +41,7 @@ void show_help() {
         "--show-xinput-cmd             show the config for libinput\n"
         "--show-matrix                 show the final matrix\n"
         "--verbose                     set verbose to on\n"
-        "--not-save                    don't update X11 setting\n"
+        "--dont-save                   don't update X11 setting\n"
         "--matrix=x1,x2..x9            start coefficent matrix\n"
         "\n"
         "version: %s\n"
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
             device_id = stou(arg.substr(12));
         } else if (arg == "--verbose") {
             verbose = true;
-        } else if (arg == "--not-save") {
+        } else if (arg == "--dont-save") {
             not_save = true;
         } else if (arg == "--show-x11-config") {
             show_conf_x11 = true;
