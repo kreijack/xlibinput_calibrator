@@ -1,0 +1,5 @@
+f294afed2a74b79575d89ab35c8ca0c3  usr/bin/xlibinput_calibrator
+12251eaeb32ea66dcd9d78f97dc28302  usr/share/doc/xlibinput-calibrator/README.Debian
+b66e415dddea1c7e7933be1775c02be0  usr/share/doc/xlibinput-calibrator/changelog.Debian.gz
+ecb5f0f6174182f2d838ef16ad42e198  usr/share/doc/xlibinput-calibrator/copyright
+78b3c1b411f652182a5b18d51917bc0d  usr/share/man/man8/xlibinput_calibrator.8.gz

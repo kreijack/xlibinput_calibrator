@@ -1,0 +1,15 @@
+Source: xlibinput-calibrator
+Section: x11
+Priority: optional
+Maintainer: Goffredo Baroncelli <ghigo@venice.bhome>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.5.0
+Homepage: https://github.com/kreijack/xlibinput_calibrator
+#Vcs-Browser: https://salsa.debian.org/debian/xlibinput-calibrator
+#Vcs-Git: https://salsa.debian.org/debian/xlibinput-calibrator.git
+
+Package: xlibinput-calibrator
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Touchscreen calibrator tool
+

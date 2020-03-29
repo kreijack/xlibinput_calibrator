@@ -1,0 +1,10 @@
+Package: xlibinput-calibrator
+Version: 0.1-1
+Architecture: amd64
+Maintainer: Goffredo Baroncelli <ghigo@venice.bhome>
+Installed-Size: 127
+Depends: libc6 (>= 2.14), libgcc-s1 (>= 3.0), libstdc++6 (>= 9), libx11-6, libxi6 (>= 2:1.2.0)
+Section: x11
+Priority: optional
+Homepage: https://github.com/kreijack/xlibinput_calibrator
+Description: Touchscreen calibrator tool
