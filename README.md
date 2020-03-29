@@ -50,7 +50,7 @@ This project is derived from xinput_calibrator (mainly gui_x11).
 The rest of the code is by Goffredo Baroncelli <kreijack@inwind.it>
 
 TODO:
-- [ ]Bugfix
+- [ ] Bugfix
 - [ ] Add manpage
-- [ ]Add debian package (debian/....)
-- [ ]Add rpm package (spec file)
+- [ ] Add debian package (debian/....)
+- [ ] Add rpm package (spec file)
