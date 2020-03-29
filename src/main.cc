@@ -169,15 +169,15 @@ int main(int argc, char** argv)
     // wait for timer signal, processes events
     auto ret = gui.mainloop();
 
+    if (!ret) {
+        printf("No results.. exit\n");
+        return 1;
+    }
+
     if (verbose) {
-        if (ret) {
-            printf("Values:\n");
-            for( auto [x, y] : gui.get_points()) {
-                printf("  x=%d, y=%d\n", x, y);
-            }
-        } else {
-            printf("No results\n");
-        }
+        printf("Values:\n");
+        for( auto [x, y] : gui.get_points())
+            printf("\tx=%d, y=%d\n", x, y);
     }
 
     auto [w, h] = gui.get_display_size();
@@ -186,12 +186,8 @@ int main(int argc, char** argv)
 
     if (show_matrix) {
         auto coeff = calib.get_coeff();
-        printf("                       [ %8.5f, %8.5f, %8.5f ]\n",
-                    coeff[0], coeff[1], coeff[2]);
-        printf("Calibration matrix:    [ %8.5f, %8.5f, %8.5f ]\n",
-                    coeff[3], coeff[4], coeff[5]);
-        printf("                       [ %8.5f, %8.5f, %8.5f ]\n",
-                    coeff[6], coeff[7], coeff[8]);
+        printf("Calibration matrix:\n");
+        mat9_print(coeff);
     }
 
     if (!not_save)
