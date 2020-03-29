@@ -1,0 +1,14 @@
+This program create a "virtual touch screen device". The program access the
+/dev/uinput device, so it need the privileges.
+
+After creating the virtual device, the program ask the point to click.
+A point is defined by a digit in the range 0..3. Each point match a 
+corner:
+0 -> upper left
+1 -> upper right
+2 -> bottom left
+3 -> bottom right
+
+This program is mainly a tool to debug xlibinput_calibrator.
+
+
