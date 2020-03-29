@@ -62,12 +62,7 @@ public:
                     const int thr_doubleclick=0,
                     bool verbose = false);
 
-    ~Calibrator() {
-        if (reset_data)
-            set_calibration(old_coeff);
-        if (display)
-            XCloseDisplay(display);
-    }
+    ~Calibrator();
 
     /// calculate and apply the calibration
     bool finish(int width, int height);

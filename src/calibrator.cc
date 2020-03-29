@@ -144,16 +144,10 @@ void Calibrator::setMatrix(const Mat9 &coeff)
 bool Calibrator::finish(int width, int height)
 {
 
-
-    /* FIXME, allow to override initial coeff */
-
     if (verbose) {
-        Mat9 coeff;
-        getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
-        printf("Calibrating Libinput driver for \"%s\" id=%lu\n",
-                device_name.c_str(), device_id);
-        printf("\tcurrent calibration values (from XInput):\n");
-        mat9_print(coeff);
+        printf("Calibrating Libinput driver:\n");
+        printf("\tDevice:%s\n", device_name.c_str());
+        printf("\tDevice-ID:%lu\n", device_id);
     }
 
     if (get_numclicks() != NUM_POINTS) {
@@ -352,7 +346,6 @@ bool Calibrator::save_calibration()
     XSync(display, False);
     reset_data = false;
 
-
     return success;
 }
 
@@ -361,12 +354,12 @@ bool Calibrator::set_calibration(const Mat9 &coeff) {
         setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
     } catch(...) {
         if (verbose)
-            printf("DEBUG: Failed to apply axis calibration.\n");
+            printf("Failed to apply axis calibration.\n");
         return false;;
     }
 
     if (verbose)
-            printf("DEBUG: Successfully applied axis calibration.\n");
+            printf("Successfully applied axis calibration.\n");
 
     return true;
 }
@@ -380,7 +373,7 @@ bool Calibrator::add_click(int x, int y)
             if (abs(x - clicked_x[i]) <= threshold_doubleclick
                 && abs(y - clicked_y[i]) <= threshold_doubleclick) {
                 if (verbose) {
-                    printf("DEBUG: Not adding click %i (X=%i, Y=%i): within %i pixels of previous click\n",
+                    printf("WARNING: Not adding click %i (X=%i, Y=%i): within %i pixels of previous click\n",
                          get_numclicks(), x, y, threshold_doubleclick);
                 }
                 return false;
@@ -401,7 +394,7 @@ bool Calibrator::add_click(int x, int y)
                 {
                     misclick = false;
                 } else if (verbose) {
-                    printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) (threshold=%i)\n",
+                    printf("WARNING: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) (threshold=%i)\n",
                             get_numclicks(), x, y, clicked_x[UL], clicked_y[UL], threshold_misclick);
                 }
                 break;
@@ -415,7 +408,7 @@ bool Calibrator::add_click(int x, int y)
                 {
                     misclick = false;
                 } else if (verbose) {
-                    printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) or click 1 (X=%i, Y=%i) (threshold=%i)\n",
+                    printf("WARNING: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 0 (X=%i, Y=%i) or click 1 (X=%i, Y=%i) (threshold=%i)\n",
                             get_numclicks(), x, y, clicked_x[UL], clicked_y[UL], clicked_x[UR], clicked_y[UR], threshold_misclick);
                 }
                 break;
@@ -429,7 +422,7 @@ bool Calibrator::add_click(int x, int y)
                 {
                     misclick = false;
                 } else if (verbose) {
-                    printf("DEBUG: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 1 (X=%i, Y=%i) or click 2 (X=%i, Y=%i) (threshold=%i)\n",
+                    printf("WARNING: Mis-click detected, click %i (X=%i, Y=%i) not aligned with click 1 (X=%i, Y=%i) or click 2 (X=%i, Y=%i) (threshold=%i)\n",
                             get_numclicks(), x, y, clicked_x[UR], clicked_y[UR], clicked_x[LL], clicked_y[LL], threshold_misclick);
                 }
         }
@@ -442,9 +435,6 @@ bool Calibrator::add_click(int x, int y)
 
     clicked_x.push_back(x);
     clicked_y.push_back(y);
-
-    if (verbose)
-        printf("DEBUG: Adding click %i (X=%i, Y=%i)\n", get_numclicks()-1, x, y);
 
     return true;
 }
@@ -465,17 +455,17 @@ bool Calibrator::output_xinput(const std::string &output_filename)
         devname = device_name;
 
     if(output_filename == "")
-        printf("  Install the 'xinput' tool and copy the command(s) below in a script that starts with your X session\n");
+        printf("Install the 'xinput' tool and copy the command(s) below in a script that starts with your X session\n");
     else
-        printf("  writing calibration script to '%s'\n", output_filename.c_str());
+        printf("Writing calibration script to '%s'\n", output_filename.c_str());
 
     // create startup script
     char line[2000];
     std::string outstr;
 
-    snprintf(line, sizeof(line)-1, "\n\txinput set-float-prop \"%s\" \""
+    snprintf(line, sizeof(line)-1, "\n       xinput set-float-prop \"%s\" \""
                 LIBINPUTCALIBRATIONMATRIXPRO
-                "\" \\\n\t\t%f %f %f %f %f \\\n\t\t%f %f %f %f\n\n", devname.c_str(),
+                "\" \\\n            %f %f %f %f %f \\\n            %f %f %f %f\n\n", devname.c_str(),
                 result_coeff[0], result_coeff[1], result_coeff[2], result_coeff[3], result_coeff[4], result_coeff[5],
                 result_coeff[6], result_coeff[7], result_coeff[8]
                            );
@@ -543,4 +533,19 @@ bool Calibrator::output_xorgconfd(const std::string &output_filename)
     }
 
     return true;
+}
+
+Calibrator::~Calibrator() {
+        if (reset_data) {
+            printf("Restore previous calibration values\n");
+            set_calibration(old_coeff);
+        }
+        if (verbose) {
+            Mat9 coeff;
+            getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+            printf("Current calibration values (from XInput):\n");
+            mat9_print(coeff);
+        }
+        if (display)
+            XCloseDisplay(display);
 }

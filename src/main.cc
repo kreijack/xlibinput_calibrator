@@ -31,13 +31,14 @@ extern const char *gitversion;
 
 void show_help() {
     printf("usage: xlibinput_calibrator [opts]\n"
-        "--output-file=<filename>      save the output to filename\n"
+        "--output-file-x11-config=<filename>   save the output to filename\n"
+        "--output-file-xinput-cmd=<filename>   save the output to filename\n"
         "--threshold-misclick=<nn>     set the threshold for misclick to <nn>\n"
         "--threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>\n"
         "--device-name=<devname>       set the touch screen device by name\n"
         "--device-id=<devid>           set the touch screen device by id\n"
         "--show-x11-config             show the config for X11\n"
-        "--show-xinput-config          show the config for libinput\n"
+        "--show-xinput-cmd             show the config for libinput\n"
         "--show-matrix                 show the final matrix\n"
         "--verbose                     set verbose to on\n"
         "--not-save                    don't update X11 setting\n"
@@ -75,7 +76,8 @@ unsigned long stou(std::string_view s)
 int main(int argc, char** argv)
 {
 
-    std::string output_file;
+    std::string output_file_x11;
+    std::string output_file_xinput;
     bool verbose = false;
     int thr_misclick = 0;
     int thr_doubleclick = 0;
@@ -90,8 +92,10 @@ int main(int argc, char** argv)
     for (int i = 1 ; i < argc ; i++) {
         const std::string_view arg{argv[i]};
 
-        if (starts_with(arg, "--output-file=")) {
-            output_file = arg.substr(14);
+        if (starts_with(arg, "--output-file-x11-config=")) {
+            output_file_x11 = arg.substr(25);
+        } else if (starts_with(arg, "--output-file-xinput-cmd=")) {
+            output_file_xinput = arg.substr(25);
         } else if (starts_with(arg, "--threshold-misclick=")) {
             thr_misclick = stoi(arg.substr(21));
         } else if (starts_with(arg, "--threshold-doubleclick=")) {
@@ -106,7 +110,7 @@ int main(int argc, char** argv)
             not_save = true;
         } else if (arg == "--show-x11-config") {
             show_conf_x11 = true;
-        } else if (arg == "--show-xinput-config") {
+        } else if (arg == "--show-xinput-cmd") {
             show_conf_xinput = true;
         } else if (arg == "--show-matrix") {
             show_matrix = true;
@@ -123,18 +127,19 @@ int main(int argc, char** argv)
     }
 
     if (verbose) {
-        printf("show-matrix:              %s\n", show_matrix ? "yes" : "no");
-        printf("show-x11-config:          %s\n", show_conf_x11 ? "yes" : "no");
-        printf("show-libinput-config:     %s\n", show_conf_xinput ? "yes" : "no");
-        printf("not-save:                 %s\n", show_conf_xinput ? "yes" : "no");
+        printf("show-matrix:                %s\n", show_matrix ? "yes" : "no");
+        printf("show-x11-config:            %s\n", show_conf_x11 ? "yes" : "no");
+        printf("show-libinput-config:       %s\n", show_conf_xinput ? "yes" : "no");
+        printf("not-save:                   %s\n", show_conf_xinput ? "yes" : "no");
         if (device_id != (XID)-1)
-            printf("device-id:                %lu\n", device_id);
+            printf("device-id:                  %lu\n", device_id);
         else
-            printf("device-id:                <UNSET>\n");
-        printf("device-name:              '%s'\n", device_name.c_str());
-        printf("output-file:              '%s'\n", output_file.c_str());
-        printf("threshold-misclick:       %d\n", thr_misclick);
-        printf("threshold-doubleclick:    %d\n", thr_doubleclick);
+            printf("device-id:                  <UNSET>\n");
+        printf("device-name:                '%s'\n", device_name.c_str());
+        printf("output-file-x11-config:     '%s'\n", output_file_x11.c_str());
+        printf("output-file-xinput-config:  '%s'\n", output_file_xinput.c_str());
+        printf("threshold-misclick:         %d\n", thr_misclick);
+        printf("threshold-doubleclick:      %d\n", thr_doubleclick);
     }
 
 
@@ -175,7 +180,7 @@ int main(int argc, char** argv)
     }
 
     if (verbose) {
-        printf("Values:\n");
+        printf("Click points accepted:\n");
         for( auto [x, y] : gui.get_points())
             printf("\tx=%d, y=%d\n", x, y);
     }
@@ -190,13 +195,16 @@ int main(int argc, char** argv)
         mat9_print(coeff);
     }
 
-    if (!not_save)
+    if (!not_save) {
+        if (verbose)
+            printf("Update the X11 calibration matrix\n");
         calib.save_calibration();
+    }
 
-    if (show_conf_x11)
-        calib.output_xorgconfd(output_file);
-    if (show_conf_xinput)
-        calib.output_xinput(output_file);
+    if (show_conf_x11 || output_file_x11.size())
+        calib.output_xorgconfd(output_file_x11);
+    if (show_conf_xinput || output_file_xinput.size())
+        calib.output_xinput(output_file_xinput);
 
     return 0;
 }
