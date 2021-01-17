@@ -1,3 +1,6 @@
+/*
+ * Free inspired from https://github.com/freedesktop/xorg-xinput/blob/master/src/property.c
+ */
 
 #include <cstdio>
 #include <cstring>
