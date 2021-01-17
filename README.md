@@ -46,7 +46,22 @@ sets the calibration matrix to the identity (i.e. all 1 in the diagonal). With t
 * C++ 17 compiler
 * xrandr
 
-AUTHOR:
+## Compile
+
+Go under **src/**, and run **make**:
+
+	$ git clone https://github.com/kreijack/xlibinput_calibrator.git
+	Cloning into 'xlibinput_calibrator'...
+	[...]
+	$ cd xlibinput_calibrator/src/
+	xlibinput_calibrator/src$ make
+	g++ -MT main.o -MMD -MP -MF .d/main.Td -Wall -pedantic -std=c++17   -c -o main.o main.cc
+	[..]
+	xlibinput_calibrator/src$ ls -l xlibinput_calibrator
+	-rwxr-xr-x 1 ghigo ghigo 208416 Jan 17 19:58 xlibinput_calibrator
+
+
+## AUTHOR:
 This project is derived from xinput_calibrator (mainly gui_x11).
 The rest of the code is by Goffredo Baroncelli <kreijack@inwind.it>
 
