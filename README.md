@@ -61,8 +61,9 @@ Go under **src/**, and run **make**:
 	-rwxr-xr-x 1 ghigo ghigo 208416 Jan 17 19:58 xlibinput_calibrator
 
 
-## AUTHOR:
+## AUTHORS:
 This project is derived from xinput_calibrator (mainly gui_x11).
+Some pieces derived from the xorg-xinput sources.
 The rest of the code is by Goffredo Baroncelli <kreijack@inwind.it>
 
 TODO:
