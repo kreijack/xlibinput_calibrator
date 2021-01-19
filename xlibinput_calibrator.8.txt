@@ -1,0 +1,58 @@
+NAME
+  xlibinput_calibrator(8) - calibrate a X11 touch screen device
+SYNOPSIS
+  xlibinput_calibrator [--output-file-x11-config=<filename>] [--dont-save]
+                       [--output-file-xinput-cmd=<filename>] [--verbose]
+                       [--threshold-misclick=<nn>] [--matrix=_x1,x2..x9_]
+                       [--threshold-doubleclick=<nn>] [--show-matrix]
+                       [--device-name=<devname>] [--show-x11-config]
+                       [--show-xinput-cmd]
+DESCRIPTION
+  xlibinout_calibrator(8) calibrates a touch screen setting the so called
+  libinput _matrix calibration_ using the _xinput_ interfaces.
+
+  The possible outcomes of this command are: set a new X11 configuration;
+  create a new configuration file for X11; show the xinput command option
+  to set the new matrix calibration.
+OPTIONS
+  --output-file-x11-config=<filename>  Set the filename where the X11
+      configuration will be saved. Implies --show-x11-config.
+
+  --output-file-xinput-cmd=<filename>  Set the filename where the xinput
+      command will be saved. Implies --show-xinput-cmd.
+
+  --threshold-misclick=<nn>  Set the threshold for accept or reject a click.
+      The four clicks have to
+      be the in the corners of a rectagle. The value passed are the maximum
+      allowable distance between the click and the ideal point. If the value is
+      0 (default), the check is not performed.
+
+  --threshold-doubleclick=<nn>  Set the threshold for accept or reject a
+      click. It sets the minimum distance between clicks to accept them. If
+      the value is 0, the check is not performed. Default value 1.
+
+  --device-name=<devname>|--device-id=<device-id>  xlibinput_calibrator(8)
+      selects automatically the device to operate. If for some reason this is
+      not possible (avaliability of multiple devices), it is possible to
+      select explicitly the device with --device-id=... or --device-name=...
+      options (the former takes precedence).
+
+  --show-x11-config  Show the the `X11` file configuration with the new
+      matrix_calibration.
+
+  --show-xinput-cmd  Show the the xinput(1) command to the the
+      matrix_calibration.
+
+  --show-matrix  Show the final matrix when the program ends.
+
+  --verbose  Be verbose.
+
+  --dont-save  Don't save the setting in X11 when the program ends.
+
+  --matrix=<x1,x2..x9>  Sets the intial matrix before doing the calibration.
+      By default xlibinput_calibrator(8) sets the calibration matrix to the
+      identity (i.e. all 1 in the diagonal). With this option it is possible
+      to set another matrix. Note that if something goes wrong or the
+      calibration fails, the original matrix is set in X11.
+AUTHOR
+  Goffredo Baroncelli \<kreijack@inwind.it\>
