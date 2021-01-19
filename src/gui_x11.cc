@@ -309,11 +309,8 @@ void GuiCalibratorX11::draw_message(const char* msg)
     XDrawString(display, win, gc, x, y, msg, strlen(msg));
 }
 
-void GuiCalibratorX11::give_timer_signal()
+void GuiCalibratorX11::on_xevent()
 {
-
-    on_timer_signal();
-
     // process events
     XEvent event;
     while (XCheckWindowEvent(display, win, -1, &event) == True) {
@@ -339,38 +336,30 @@ void GuiCalibratorX11::give_timer_signal()
     }
 }
 
-// handle SIGALRM signal, pass to singleton
-void GuiCalibratorX11::sigalarm_handler(int num)
-{
-    if (!the_instance)
-        return;
-
-    if (num == SIGALRM) {
-        the_instance->give_timer_signal();
-    }
-}
-
 bool GuiCalibratorX11::mainloop() {
-    assert(the_instance == nullptr);
+
+    // This returns the FD of the X11 display (or something like that)
+    auto x11_fd = ConnectionNumber(display);
+
     do_loop = true;
-    the_instance = this;
-    // Setup timer for animation
-    signal(SIGALRM, sigalarm_handler);
-    struct itimerval timer;
-    timer.it_value.tv_sec = time_step/1000;
-    timer.it_value.tv_usec = (time_step % 1000) * 1000;
-    timer.it_interval = timer.it_value;
-    setitimer(ITIMER_REAL, &timer, NULL);
 
-    while(do_loop)
-        pause();
+    // Main loop
+    while(do_loop) {
+        fd_set in_fds;
+        struct timeval tv;
 
-    timer.it_value.tv_sec = 0;
-    timer.it_value.tv_usec = 0;
-    timer.it_interval = timer.it_value;
-    setitimer(ITIMER_REAL, &timer, NULL);
-    signal(SIGALRM, SIG_IGN);
-    the_instance = nullptr;
+        tv.tv_sec = time_step / 1000;
+        tv.tv_usec = (time_step % 1000) * 1000;
+
+        // Create a File Description Set containing x11_fd
+        FD_ZERO(&in_fds);
+        FD_SET(x11_fd, &in_fds);
+
+        // Wait for X Event or a Timer
+        if (!select(x11_fd+1, &in_fds, 0, 0, &tv))
+            on_timer_signal();
+        on_xevent();
+    }
 
     return return_value;
 }

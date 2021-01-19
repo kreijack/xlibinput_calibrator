@@ -96,8 +96,6 @@ public:
     GuiCalibratorX11();
 
 private:
-    void give_timer_signal();
-
     // Data
     double X[4], Y[4];
     int display_width, display_height;
@@ -114,8 +112,9 @@ private:
     unsigned long pixel[nr_colors];
 
 
-    // Signal handlers
+    // event handlers
     void on_timer_signal();
+    void on_xevent();
     void on_expose_event();
     void on_button_press_event(XEvent event);
 
@@ -125,7 +124,6 @@ private:
     void draw_message(const char* msg);
 
     Points points;
-    static void sigalarm_handler(int num);
     inline static GuiCalibratorX11 *the_instance = nullptr;
     bool return_value;
     bool do_loop;
