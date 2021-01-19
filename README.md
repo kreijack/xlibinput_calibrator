@@ -44,7 +44,8 @@ sets the calibration matrix to the identity (i.e. all 1 in the diagonal). With t
 * libxi-dev
 * libx11-dev
 * C++ 17 compiler
-* xrandr
+* xrandr (optional)
+* ronn
 
 ## Compile
 

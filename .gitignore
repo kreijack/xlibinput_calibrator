@@ -3,5 +3,6 @@ debug-*
 xlibinput_calibrator
 version.cc
 *.o
-
+xlibinput_calibrator.8
+xlibinput_calibrator.8.html
 uinput-touch-simulator/uinput-touch-simulation
