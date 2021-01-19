@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     std::string output_file_xinput;
     bool verbose = false;
     int thr_misclick = 0;
-    int thr_doubleclick = 0;
+    int thr_doubleclick = 1;
     std::string device_name;
     XID device_id = (XID)-1;
     bool show_matrix = false;
