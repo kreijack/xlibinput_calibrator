@@ -27,6 +27,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 #include "xinput.hpp"
 #include "mat9.hpp"
@@ -85,6 +86,10 @@ public:
     /// reset clicks
     void reset()
     {  clicked_x.clear(); clicked_y.clear();}
+
+    std::pair<int, int> get_point(int i) {
+        return std::pair{clicked_x[i], clicked_y[i]};
+    }
 
     /// add a click with the given coordinates
     bool add_click(int x, int y);

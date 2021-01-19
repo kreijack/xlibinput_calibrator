@@ -57,34 +57,6 @@ inline const int nr_colors = 5;
  *   +--+--+--+--+--+--+--+--+
  */
 
-class Points {
-public:
-    struct XY {
-        int x;
-        int y;
-    };
-private:
-    std::vector<XY> points = {};
-    bool mis_click = false;
-
-    void _reset() {
-            points.clear();
-            mis_click = false;
-    }
-    void check_misclick() {
-        /* TBD */
-    }
-
-public:
-    void add_click(int x, int y) {
-        points.push_back({x, y});
-    }
-    void reset() { _reset(); }
-    std::vector<XY> data() { return points; }
-    size_t size() { return points.size(); }
-
-};
-
 /*******************************************
  * X11 class for the the calibration GUI
  *******************************************/
@@ -123,7 +95,8 @@ private:
     void redraw();
     void draw_message(const char* msg);
 
-    Points points;
+    //Points points;
+    int points_count;
     inline static GuiCalibratorX11 *the_instance = nullptr;
     bool return_value;
     bool do_loop;
@@ -139,7 +112,6 @@ public:
         reset_ext = f;
     }
 
-    const std::vector<Points::XY> get_points() { return points.data(); }
     std::pair<int, int> get_display_size() { return {display_width,
                                                         display_height}; }
 };

@@ -181,8 +181,10 @@ int main(int argc, char** argv)
 
     if (verbose) {
         printf("Click points accepted:\n");
-        for( auto [x, y] : gui.get_points())
+        for(int i = 0 ; i < calib.get_numclicks() ; i++) {
+            auto [x, y] = calib.get_point(i);
             printf("\tx=%d, y=%d\n", x, y);
+        }
     }
 
     auto [w, h] = gui.get_display_size();

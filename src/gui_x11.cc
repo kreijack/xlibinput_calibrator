@@ -77,7 +77,7 @@ static const std::string help_text[help_lines] = {
 static const char* colors[nr_colors] = {"BLACK", "WHITE", "GRAY", "DIMGRAY", "RED"};
 
 GuiCalibratorX11::GuiCalibratorX11()
-  : time_elapsed(0)
+  : time_elapsed(0), points_count(0)
 {
     display = XOpenDisplay(NULL);
     if (display == NULL) {
@@ -164,7 +164,7 @@ void GuiCalibratorX11::set_display_size(int width, int height) {
     X[LR] = display_width - delta_x - 1; Y[LR] = display_height - delta_y - 1;
 
     // reset calibration if already started
-    points.reset();
+    points_count = 0;
 }
 
 void GuiCalibratorX11::redraw()
@@ -204,9 +204,9 @@ void GuiCalibratorX11::redraw()
     }
 
     // Draw the points
-    for (unsigned i = 0; i <= points.size(); i++) {
+    for (int i = 0; i <= points_count; i++) {
         // set color: already clicked or not
-        if (i < points.size())
+        if (i < points_count)
             XSetForeground(display, gc, pixel[WHITE]);
         else
             XSetForeground(display, gc, pixel[RED]);
@@ -263,14 +263,14 @@ void GuiCalibratorX11::on_button_press_event(XEvent event)
 
     if (!success) {
         draw_message("Mis-click detected, restarting...");
-        points.reset();
+        points_count = 0;
         reset_ext();
     } else {
-        points.add_click(event.xbutton.x, event.xbutton.y);
+        points_count ++;
     }
 
     // Are we done yet?
-    if (points.size() >= 4) {
+    if (points_count >= 4) {
         return_value = true;
         do_loop = false;
         return;
