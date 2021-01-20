@@ -4,9 +4,9 @@ OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17
 
-# iuncomment the lines below f you want to use xrandr extension set
-#CXXFLAGS+= -DHAVE_X11_XRANDR
-#LIBS+= -lXrandr
+# uncomment the lines below f you want to use xrandr extension set
+CXXFLAGS+= -DHAVE_X11_XRANDR
+LIBS+= -lXrandr
 
 all: xlibinput_calibrator
 
