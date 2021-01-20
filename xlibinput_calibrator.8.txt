@@ -5,8 +5,8 @@ SYNOPSIS
                        [--output-file-xinput-cmd=<filename>] [--verbose]
                        [--threshold-misclick=<nn>] [--matrix=_x1,x2..x9_]
                        [--threshold-doubleclick=<nn>] [--show-matrix]
-                       [--device-name=<devname>] [--show-x11-config]
-                       [--show-xinput-cmd]
+                       [--device-name=<devname>|-device-id=<device-id>]
+                       [--show-x11-config] [--show-xinput-cmd]
 DESCRIPTION
   xlibinout_calibrator(8) calibrates a touch screen setting the so called
   libinput _matrix calibration_ using the _xinput_ interfaces.
