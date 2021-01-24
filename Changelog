@@ -1,0 +1,25 @@
+v0.6 - 2021-01-24
+	- changed the man page format from nroff to a txt2man based
+	- correct the handling of multi-monitor setup. Add the
+	  --monitor-nr option
+
+v0.5 - 2021-01-19
+	- set a the default value '1' for the doubleckick-threshold
+	  to avoid to compute invalid calibration matrix
+	- switch from signal based event loop to a (more sane)
+	  real event loop based to select(2) syscall.
+	- small code cleanup
+
+v0.4 - 2021-01-18
+	- update makefile to handle the case where the .git directory
+	  doesn't exist
+
+v0.3 - 2021-01-17
+	- update documentation
+	- update copyright headers
+
+v0.2 - 2020-03-30
+	- update documentation
+
+v0.1 - 2020-03-29
+	- first release
