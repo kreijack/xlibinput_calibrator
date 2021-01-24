@@ -21,6 +21,7 @@ This project is derived from xinput_calibrator.
 --verbose                     set verbose to on
 --dont-save                   don't update X11 setting
 --matrix=x1,x2..x9            start coefficent matrix
+--monitor-nr=<n>              show the ouput in the monitor '<n>'
 ```
 
 The possible outcomes of this command are the following:
@@ -60,6 +61,14 @@ Go under **src/**, and run **make**:
 	[..]
 	xlibinput_calibrator/src$ ls -l xlibinput_calibrator
 	-rwxr-xr-x 1 ghigo ghigo 208416 Jan 17 19:58 xlibinput_calibrator
+
+
+## Man page
+
+To generate the man page, run "make man" in the root folder:
+
+    $ make man
+    txt2man -s 8 -t xlibinput_calibrator -v 'General Commands Manual' xlibinput_calibrator.8.txt > xlibinput_calibrator.8
 
 
 ## AUTHORS:
