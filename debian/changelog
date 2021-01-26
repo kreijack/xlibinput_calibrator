@@ -1,3 +1,9 @@
+xlibinput-calibrator (0.1-2) UNRELEASED; urgency=medium
+
+  * Update to upstream v0.7
+
+ -- Goffredo Baroncelli <ghigo@venice.bhome>  Tue, 26 Jan 2021 20:49:04 +0100
+
 xlibinput-calibrator (0.1-1) unstable; urgency=medium
 
   * Initial release
