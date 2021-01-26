@@ -21,6 +21,7 @@ This project is derived from xinput_calibrator.
 --verbose                     set verbose to on
 --dont-save                   don't update X11 setting
 --matrix=x1,x2..x9            start coefficent matrix
+--monitor-nr=<n>              show the ouput in the monitor '<n>'
 ```
 
 The possible outcomes of this command are the following:
@@ -44,14 +45,39 @@ sets the calibration matrix to the identity (i.e. all 1 in the diagonal). With t
 * libxi-dev
 * libx11-dev
 * C++ 17 compiler
-* xrandr
+* xrandr (optional)
+* txt2man
 
-AUTHOR:
+## Compile
+
+Go under **src/**, and run **make**:
+
+	$ git clone https://github.com/kreijack/xlibinput_calibrator.git
+	Cloning into 'xlibinput_calibrator'...
+	[...]
+	$ cd xlibinput_calibrator/src/
+	xlibinput_calibrator/src$ make
+	g++ -MT main.o -MMD -MP -MF .d/main.Td -Wall -pedantic -std=c++17   -c -o main.o main.cc
+	[..]
+	xlibinput_calibrator/src$ ls -l xlibinput_calibrator
+	-rwxr-xr-x 1 ghigo ghigo 208416 Jan 17 19:58 xlibinput_calibrator
+
+
+## Man page
+
+To generate the man page, run "make man" in the root folder:
+
+    $ make man
+    txt2man -s 8 -t xlibinput_calibrator -v 'General Commands Manual' xlibinput_calibrator.8.txt > xlibinput_calibrator.8
+
+
+## AUTHORS:
 This project is derived from xinput_calibrator (mainly gui_x11).
+Some pieces derived from the xorg-xinput sources.
 The rest of the code is by Goffredo Baroncelli <kreijack@inwind.it>
 
 TODO:
 - [ ] Bugfix
-- [ ] Add manpage
+- [X] Add manpage
 - [ ] Add debian package (debian/....)
 - [ ] Add rpm package (spec file)

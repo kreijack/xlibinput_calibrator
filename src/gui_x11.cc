@@ -76,8 +76,8 @@ static const std::string help_text[help_lines] = {
 
 static const char* colors[nr_colors] = {"BLACK", "WHITE", "GRAY", "DIMGRAY", "RED"};
 
-GuiCalibratorX11::GuiCalibratorX11()
-  : time_elapsed(0)
+GuiCalibratorX11::GuiCalibratorX11(int mnr)
+  : time_elapsed(0), points_count(0), monitor_nr(mnr)
 {
     display = XOpenDisplay(NULL);
     if (display == NULL) {
@@ -95,28 +95,18 @@ GuiCalibratorX11::GuiCalibratorX11()
         }
     }
 
-#ifdef HAVE_X11_XRANDR
-    // get screensize from xrandr
-    int nsizes;
-    XRRScreenSize* randrsize = XRRSizes(display, screen_num, &nsizes);
-    if (nsizes != 0) {
-        set_display_size(randrsize->width, randrsize->height);
-    } else {
-        set_display_size(DisplayWidth(display, screen_num),
-                         DisplayHeight(display, screen_num));
-    }
-# else
-    set_display_size(DisplayWidth(display, screen_num),
-                     DisplayHeight(display, screen_num));
-#endif
+    int x, y, w, h;
+    get_monitor_size(x, y, w, h, monitor_nr);
+    set_window_size(x, y, w, h);
 
+    //printf("window: %d,%x x %d,%d\n", window_x, window_y, window_width, window_height);
     // Register events on the window
     XSetWindowAttributes attributes;
     attributes.override_redirect = True;
     attributes.event_mask = ExposureMask | KeyPressMask | ButtonPressMask;
 
     win = XCreateWindow(display, RootWindow(display, screen_num),
-                0, 0, display_width, display_height, 0,
+                window_x, window_y, window_width, window_height, 0,
                 CopyFromParent, InputOutput, CopyFromParent,
                 CWOverrideRedirect | CWEventMask,
                 &attributes);
@@ -143,6 +133,53 @@ GuiCalibratorX11::GuiCalibratorX11()
 
 }
 
+void GuiCalibratorX11::get_monitor_size(int &x, int &y, int &w, int &h,
+                                        int monitor_num) {
+
+#ifndef HAVE_X11_XRANDR
+
+    x = y = 0;
+    w = DisplayWidth(display, screen_num);
+    h = DisplayHeight(display, screen_num);
+    return;
+
+#else
+
+    int n;
+    auto root = RootWindow (display, screen_num);
+    auto monitors = XRRGetMonitors(display, root, false, &n);
+
+    if (n == -1) {
+        fprintf(stderr, "WARNING: cannot execute XRRGetMonitors\n");
+        x = y = 0;
+        w = DisplayWidth(display, screen_num);
+        h = DisplayHeight(display, screen_num);
+        return;
+    }
+
+    if (monitor_num >= n || monitor_num < 0 || monitor_num == -1) {
+        x = y = w = h = 0;
+
+        for (int i = 0 ; i < n ; i++) {
+            int width = monitors[i].x + monitors[i].width;
+            int height = monitors[i].y + monitors[i].height;
+            if (width > w)
+                w = width;
+            if (height > h)
+                h = height;
+        }
+
+    } else {
+        x = monitors[monitor_num].x;
+        y = monitors[monitor_num].y;
+        w = monitors[monitor_num].width;
+        h = monitors[monitor_num].height;
+    }
+
+    XRRFreeMonitors(monitors);
+#endif
+}
+
 GuiCalibratorX11::~GuiCalibratorX11()
 {
     XUngrabPointer(display, CurrentTime);
@@ -151,31 +188,38 @@ GuiCalibratorX11::~GuiCalibratorX11()
     XCloseDisplay(display);
 }
 
-void GuiCalibratorX11::set_display_size(int width, int height) {
-    display_width = width;
-    display_height = height;
+void GuiCalibratorX11::set_window_size(int x, int y, int width, int height) {
+    window_width = width;
+    window_height = height;
+    window_x = x;
+    window_y = y;
 
     // Compute absolute circle centers
-    const int delta_x = display_width/num_blocks;
-    const int delta_y = display_height/num_blocks;
-    X[UL] = delta_x;                     Y[UL] = delta_y;
-    X[UR] = display_width - delta_x - 1; Y[UR] = delta_y;
-    X[LL] = delta_x;                     Y[LL] = display_height - delta_y - 1;
-    X[LR] = display_width - delta_x - 1; Y[LR] = display_height - delta_y - 1;
+    const int delta_x = window_width / num_blocks;
+    const int delta_y = window_height / num_blocks;
+    X[UL] = delta_x;                    Y[UL] = delta_y;
+    X[UR] = window_width - delta_x - 1; Y[UR] = delta_y;
+    X[LL] = delta_x;                    Y[LL] = window_height - delta_y - 1;
+    X[LR] = window_width - delta_x - 1; Y[LR] = window_height - delta_y - 1;
 
     // reset calibration if already started
-    points.reset();
+    points_count = 0;
 }
 
 void GuiCalibratorX11::redraw()
 {
-#ifdef HAVE_X11_XRANDR
-    // check that screensize did not change
-    int nsizes;
-    XRRScreenSize* randrsize = XRRSizes(display, screen_num, &nsizes);
-    if (nsizes != 0 && (display_width != randrsize->width ||
-                        display_height != randrsize->height)) {
-        set_display_size(randrsize->width, randrsize->height);
+
+
+#if 0
+    {
+    int x, y, w, h;
+    get_monitor_size(x, y, w, h, monitor_nr);
+    if (x != window_x || y != window_y || w != window_width || h != window_height) {
+
+          XMoveWindow(display, win, x, y);
+          XResizeWindow(display, win, w, h);
+          set_window_size(x, y, w, h);
+    }
     }
 #endif
 
@@ -187,8 +231,8 @@ void GuiCalibratorX11::redraw()
             help_text[i].c_str(), help_text[i].length()));
     }
 
-    int x = (display_width - text_width) / 2;
-    int y = (display_height - text_height) / 2 - 60;
+    int x = (window_width - text_width) / 2;
+    int y = (window_height - text_height) / 2 - 60;
     XSetForeground(display, gc, pixel[BLACK]);
     XSetLineAttributes(display, gc, 2, LineSolid, CapRound, JoinRound);
     XDrawRectangle(display, win, gc, x - 10, y - (help_lines*text_height) - 10,
@@ -204,9 +248,9 @@ void GuiCalibratorX11::redraw()
     }
 
     // Draw the points
-    for (unsigned i = 0; i <= points.size(); i++) {
+    for (int i = 0; i <= points_count; i++) {
         // set color: already clicked or not
-        if (i < points.size())
+        if (i < points_count)
             XSetForeground(display, gc, pixel[WHITE]);
         else
             XSetForeground(display, gc, pixel[RED]);
@@ -223,7 +267,7 @@ void GuiCalibratorX11::redraw()
     // Draw the clock background
     XSetForeground(display, gc, pixel[DIMGRAY]);
     XSetLineAttributes(display, gc, 0, LineSolid, CapRound, JoinRound);
-    XFillArc(display, win, gc, (display_width-clock_radius)/2, (display_height - clock_radius)/2,
+    XFillArc(display, win, gc, (window_width-clock_radius)/2, (window_height - clock_radius)/2,
                 clock_radius, clock_radius, 0, 360 * 64);
 }
 
@@ -245,8 +289,8 @@ void GuiCalibratorX11::on_timer_signal()
     XSetForeground(display, gc, pixel[BLACK]);
     XSetLineAttributes(display, gc, clock_line_width,
                 LineSolid, CapButt, JoinMiter);
-    XDrawArc(display, win, gc, (display_width-clock_radius+clock_line_width)/2,
-                (display_height-clock_radius+clock_line_width)/2,
+    XDrawArc(display, win, gc, (window_width-clock_radius+clock_line_width)/2,
+                (window_height-clock_radius+clock_line_width)/2,
                 clock_radius-clock_line_width, clock_radius-clock_line_width,
                 90*64, ((double)time_elapsed/(double)max_time) * -360 * 64);
 }
@@ -263,31 +307,17 @@ void GuiCalibratorX11::on_button_press_event(XEvent event)
 
     if (!success) {
         draw_message("Mis-click detected, restarting...");
-        points.reset();
+        points_count = 0;
         reset_ext();
     } else {
-        points.add_click(event.xbutton.x, event.xbutton.y);
+        points_count ++;
     }
 
     // Are we done yet?
-    if (points.size() >= 4) {
-        // Recalibrate
-
-        // TBD
-        //success = calibrator->finish(display_width, display_height);
-        success = true;
-
-        if (success) {
-            return_value = true;
-            do_loop = false;
-            return;
-        } else {
-            // TODO, in GUI ?
-            fprintf(stderr, "Error: unable to apply or save configuration values");
-            return_value = false;
-            do_loop = false;
-            return;
-        }
+    if (points_count >= 4) {
+        return_value = true;
+        do_loop = false;
+        return;
     }
 
     // Force a redraw
@@ -299,8 +329,8 @@ void GuiCalibratorX11::draw_message(const char* msg)
     int text_height = font_info->ascent + font_info->descent;
     int text_width = XTextWidth(font_info, msg, strlen(msg));
 
-    int x = (display_width - text_width) / 2;
-    int y = (display_height - text_height) / 2 + clock_radius + 60;
+    int x = (window_width - text_width) / 2;
+    int y = (window_height - text_height) / 2 + clock_radius + 60;
     XSetForeground(display, gc, pixel[BLACK]);
     XSetLineAttributes(display, gc, 2, LineSolid, CapRound, JoinRound);
     XDrawRectangle(display, win, gc, x - 10, y - text_height - 10,
@@ -309,11 +339,8 @@ void GuiCalibratorX11::draw_message(const char* msg)
     XDrawString(display, win, gc, x, y, msg, strlen(msg));
 }
 
-void GuiCalibratorX11::give_timer_signal()
+void GuiCalibratorX11::on_xevent()
 {
-
-    on_timer_signal();
-
     // process events
     XEvent event;
     while (XCheckWindowEvent(display, win, -1, &event) == True) {
@@ -339,38 +366,30 @@ void GuiCalibratorX11::give_timer_signal()
     }
 }
 
-// handle SIGALRM signal, pass to singleton
-void GuiCalibratorX11::sigalarm_handler(int num)
-{
-    if (!the_instance)
-        return;
-
-    if (num == SIGALRM) {
-        the_instance->give_timer_signal();
-    }
-}
-
 bool GuiCalibratorX11::mainloop() {
-    assert(the_instance == nullptr);
+
+    // This returns the FD of the X11 display (or something like that)
+    auto x11_fd = ConnectionNumber(display);
+
     do_loop = true;
-    the_instance = this;
-    // Setup timer for animation
-    signal(SIGALRM, sigalarm_handler);
-    struct itimerval timer;
-    timer.it_value.tv_sec = time_step/1000;
-    timer.it_value.tv_usec = (time_step % 1000) * 1000;
-    timer.it_interval = timer.it_value;
-    setitimer(ITIMER_REAL, &timer, NULL);
 
-    while(do_loop)
-        pause();
+    // Main loop
+    while(do_loop) {
+        fd_set in_fds;
+        struct timeval tv;
 
-    timer.it_value.tv_sec = 0;
-    timer.it_value.tv_usec = 0;
-    timer.it_interval = timer.it_value;
-    setitimer(ITIMER_REAL, &timer, NULL);
-    signal(SIGALRM, SIG_IGN);
-    the_instance = nullptr;
+        tv.tv_sec = time_step / 1000;
+        tv.tv_usec = (time_step % 1000) * 1000;
+
+        // Create a File Description Set containing x11_fd
+        FD_ZERO(&in_fds);
+        FD_SET(x11_fd, &in_fds);
+
+        // Wait for X Event or a Timer
+        if (!select(x11_fd+1, &in_fds, 0, 0, &tv))
+            on_timer_signal();
+        on_xevent();
+    }
 
     return return_value;
 }

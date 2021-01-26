@@ -57,34 +57,6 @@ inline const int nr_colors = 5;
  *   +--+--+--+--+--+--+--+--+
  */
 
-class Points {
-public:
-    struct XY {
-        int x;
-        int y;
-    };
-private:
-    std::vector<XY> points = {};
-    bool mis_click = false;
-
-    void _reset() {
-            points.clear();
-            mis_click = false;
-    }
-    void check_misclick() {
-        /* TBD */
-    }
-
-public:
-    void add_click(int x, int y) {
-        points.push_back({x, y});
-    }
-    void reset() { _reset(); }
-    std::vector<XY> data() { return points; }
-    size_t size() { return points.size(); }
-
-};
-
 /*******************************************
  * X11 class for the the calibration GUI
  *******************************************/
@@ -93,15 +65,17 @@ class GuiCalibratorX11
 public:
     ~GuiCalibratorX11();
     bool mainloop();
-    GuiCalibratorX11();
+    GuiCalibratorX11(int monitor_nr = 1);
 
 private:
-    void give_timer_signal();
-
     // Data
     double X[4], Y[4];
-    int display_width, display_height;
+    int window_x, window_y, window_width, window_height;
     int time_elapsed;
+    int points_count;
+    bool return_value;
+    bool do_loop;
+    int monitor_nr = 0;
     const int num_blocks = 8;
 
     // X11 vars
@@ -114,24 +88,21 @@ private:
     unsigned long pixel[nr_colors];
 
 
-    // Signal handlers
+    // event handlers
     void on_timer_signal();
+    void on_xevent();
     void on_expose_event();
     void on_button_press_event(XEvent event);
 
     // Helper functions
-    void set_display_size(int width, int height);
+    void set_window_size(int x, int y, int width, int height);
     void redraw();
     void draw_message(const char* msg);
 
-    Points points;
-    static void sigalarm_handler(int num);
-    inline static GuiCalibratorX11 *the_instance = nullptr;
-    bool return_value;
-    bool do_loop;
-
     std::function<bool(int, int)> add_click_ext = [](int x, int y){ return true; };
     std::function<void(void)> reset_ext = [](){ };
+
+    void get_monitor_size(int &x, int &y, int &w, int &h, int monitor_num = 0);
 
 public:
     void set_add_click(std::function<bool(int, int)> f) {
@@ -141,7 +112,6 @@ public:
         reset_ext = f;
     }
 
-    const std::vector<Points::XY> get_points() { return points.data(); }
-    std::pair<int, int> get_display_size() { return {display_width,
-                                                        display_height}; }
+    std::pair<int, int> get_display_size() { return {window_width,
+                                                        window_height}; }
 };

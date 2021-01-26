@@ -43,6 +43,7 @@ void show_help() {
         "--verbose                     set verbose to on\n"
         "--dont-save                   don't update X11 setting\n"
         "--matrix=x1,x2..x9            start coefficent matrix\n"
+	"--monitor-number=<n>          show the output on the monitor '<n>'\n"
         "\n"
         "version: %s\n"
         "\n",
@@ -80,22 +81,29 @@ int main(int argc, char** argv)
     std::string output_file_xinput;
     bool verbose = false;
     int thr_misclick = 0;
-    int thr_doubleclick = 0;
+    int thr_doubleclick = 1;
     std::string device_name;
     XID device_id = (XID)-1;
     bool show_matrix = false;
     bool show_conf_x11 = false;
     bool show_conf_xinput = false;
     bool not_save = false;
+    int monitor_nr = 0;
     std::string start_coeff;
 
     for (int i = 1 ; i < argc ; i++) {
-        const std::string_view arg{argv[i]};
+        const std::string arg{argv[i]};
 
         if (starts_with(arg, "--output-file-x11-config=")) {
             output_file_x11 = arg.substr(25);
         } else if (starts_with(arg, "--output-file-xinput-cmd=")) {
             output_file_xinput = arg.substr(25);
+        } else if (starts_with(arg, "--monitor-number=")) {
+            auto opt = arg.substr(17);
+            if (opt == "all")
+                monitor_nr = -1;
+            else
+                monitor_nr = stoi(opt);
         } else if (starts_with(arg, "--threshold-misclick=")) {
             thr_misclick = stoi(arg.substr(21));
         } else if (starts_with(arg, "--threshold-doubleclick=")) {
@@ -140,10 +148,11 @@ int main(int argc, char** argv)
         printf("output-file-xinput-config:  '%s'\n", output_file_xinput.c_str());
         printf("threshold-misclick:         %d\n", thr_misclick);
         printf("threshold-doubleclick:      %d\n", thr_doubleclick);
+        printf("monitor-number:             %d\n", monitor_nr);
     }
 
 
-    GuiCalibratorX11 gui;
+    GuiCalibratorX11 gui(monitor_nr);
     Calibrator  calib(device_name, device_id, thr_misclick, thr_doubleclick,
                         verbose);
 
@@ -181,8 +190,10 @@ int main(int argc, char** argv)
 
     if (verbose) {
         printf("Click points accepted:\n");
-        for( auto [x, y] : gui.get_points())
+        for(int i = 0 ; i < calib.get_numclicks() ; i++) {
+            auto [x, y] = calib.get_point(i);
             printf("\tx=%d, y=%d\n", x, y);
+        }
     }
 
     auto [w, h] = gui.get_display_size();

@@ -4,16 +4,25 @@ OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17
 
+# uncomment the lines below f you want to use xrandr extension set
+CXXFLAGS+= -DHAVE_X11_XRANDR
+LIBS+= -lXrandr
+
 all: xlibinput_calibrator
 
 clean:
 	rm -f *.o
 	rm -f debug-*
 	rm -f xlibinput_calibrator
+	rm -rf .d
+	rm -f version.cc
+
+../.git/HEAD:
+
+../.git/index:
 
 version.cc: ../.git/HEAD ../.git/index
-	echo "const char *gitversion = \"$(shell git describe --abbrev=4 --dirty --always --tags)\";" > $@
-
+	echo "const char *gitversion = \"$(shell git describe --abbrev=4 --dirty --always --tags 2>/dev/null || echo '<undef>' )\";" > $@
 
 xlibinput_calibrator: $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o xlibinput_calibrator $^ $(LIBS)
