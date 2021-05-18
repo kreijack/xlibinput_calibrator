@@ -7,7 +7,7 @@ SYNOPSIS
                        [--threshold-doubleclick=<nn>] [--show-matrix]
                        [--device-name=<devname>|-device-id=<device-id>]
                        [--show-x11-config] [--show-xinput-cmd]
-                       [--monitor-nr=<nr>]
+                       [--monitor-number=<nr>]
 DESCRIPTION
   xlibinout_calibrator(8) calibrates a touch screen setting the so called
   libinput _matrix calibration_ using the _xinput_ interfaces.
@@ -56,8 +56,8 @@ OPTIONS
       to set another matrix. Note that if something goes wrong or the
       calibration fails, the original matrix is set in X11.
 
-  --monitor-nr=<nr>  Set the monitor to display the window. If <nr> is equal
-      to 'all', the window will span all the monitors area. Use 'xrandr
-      --listmonitors' to get the <nr> associated to the monitor.
+  --monitor-number=<nr>  Set the monitor to display the window. If <nr>
+      is equal to 'all', the window will span all the monitors area. Use
+      'xrandr --listmonitors' to get the <nr> associated to the monitor.
 AUTHOR
   Goffredo Baroncelli \<kreijack@inwind.it\>
