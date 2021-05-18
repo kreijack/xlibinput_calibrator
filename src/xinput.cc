@@ -340,6 +340,7 @@ int XInputTouch::set_prop(int devid, const char *name, Atom type, int format,
     XChangeDeviceProperty(display, dev, prop, type, format, PropModeReplace,
                           data.c, nelements);
     free(data.c);
+    XSync(display, False);
     XCloseDevice(display, dev);
     return 0;
 }
