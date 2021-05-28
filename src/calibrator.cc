@@ -248,7 +248,8 @@ bool Calibrator::finish(int width, int height)
      *
      * The matrix to pass to libinput has to be normalized; we need to
      * translate and scale the coeffiecient so the matrix can operate in
-     * a space where the coordinates x and y are in the range 0..1
+     * a space where the coordinates x and y (both in input and output) are
+     * in the range 0..1
      *
      * To do that, assume:
      *
@@ -274,7 +275,7 @@ bool Calibrator::finish(int width, int height)
      * this means that
      *    Cn = Sc^-1 x Tr^-1 x C x Tr x Sc
      * where
-     *      C is the Calibratoration matrix in the "screen" spaces
+     *      C is the Calibration matrix in the "screen" spaces
      *      Cn is the normalizated matrix that can be passed to libinput
      *
      * Because in the screen space usually minx=miny=0, this means
@@ -282,7 +283,7 @@ bool Calibrator::finish(int width, int height)
      *      Cn = Sc^-1 x C x Sc
      *
      *
-     * and becuse
+     * and because
      *
      *                ⎡a  b  c⎤
      *                ⎢       ⎥
