@@ -37,6 +37,9 @@ OPTIONS
       not possible (avaliability of multiple devices), it is possible to
       select explicitly the device with --device-id=... or --device-name=...
       options (the former takes precedence).
+      
+  --matrix-name=<matrix-name>  Set the name of the matrix used for the
+      calibration. 
 
   --show-x11-config  Show the the `X11` file configuration with the new
       matrix_calibration.
