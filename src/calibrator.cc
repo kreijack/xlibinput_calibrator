@@ -473,14 +473,14 @@ bool Calibrator::output_xinput(const std::string &output_filename)
     printf("%s", outstr.c_str());
     // file out
     if(output_filename != "") {
-		FILE* fid = fopen(output_filename.c_str(), "w");
-		if (fid == NULL) {
-			fprintf(stderr, "Error: Can't open '%s' for writing. Make sure you have the necessary rights\n", output_filename.c_str());
-			fprintf(stderr, "New calibration data NOT saved\n");
-			return false;
-		}
-		fprintf(fid, "%s", outstr.c_str());
-		fclose(fid);
+        FILE* fid = fopen(output_filename.c_str(), "w");
+        if (fid == NULL) {
+            fprintf(stderr, "Error: Can't open '%s' for writing. Make sure you have the necessary rights\n", output_filename.c_str());
+            fprintf(stderr, "New calibration data NOT saved\n");
+            return false;
+        }
+        fprintf(fid, "%s", outstr.c_str());
+        fclose(fid);
     }
 
     return true;
@@ -534,16 +534,16 @@ bool Calibrator::output_xorgconfd(const std::string &output_filename)
 }
 
 Calibrator::~Calibrator() {
-        if (reset_data) {
-            printf("Restore previous calibration values\n");
-            set_calibration(old_coeff);
-        }
-        if (verbose) {
-            Mat9 coeff;
-            getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
-            printf("Current calibration values (from XInput):\n");
-            mat9_print(coeff);
-        }
-        if (display)
-            XCloseDisplay(display);
+    if (reset_data) {
+        printf("Restore previous calibration values\n");
+        set_calibration(old_coeff);
+    }
+    if (verbose) {
+        Mat9 coeff;
+        getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+        printf("Current calibration values (from XInput):\n");
+        mat9_print(coeff);
+    }
+    if (display)
+        XCloseDisplay(display);
 }
