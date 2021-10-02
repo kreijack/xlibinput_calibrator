@@ -37,6 +37,7 @@ void show_help() {
         "--threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>\n"
         "--device-name=<devname>       set the touch screen device by name\n"
         "--device-id=<devid>           set the touch screen device by id\n"
+        "--matrix-name=<matrix name>   set the calibration matrix name\n"
         "--show-x11-config             show the config for X11\n"
         "--show-xinput-cmd             show the config for libinput\n"
         "--show-matrix                 show the final matrix\n"
@@ -50,6 +51,8 @@ void show_help() {
         gitversion
     );
 }
+
+#define LIBINPUTCALIBRATIONMATRIXPRO "libinput Calibration Matrix"
 
 bool starts_with(std::string_view s1, std::string_view s2)
 {
@@ -90,6 +93,7 @@ int main(int argc, char** argv)
     bool not_save = false;
     int monitor_nr = 0;
     std::string start_coeff;
+    std::string matrix_name = LIBINPUTCALIBRATIONMATRIXPRO;
 
     for (int i = 1 ; i < argc ; i++) {
         const std::string arg{argv[i]};
@@ -110,6 +114,8 @@ int main(int argc, char** argv)
             thr_doubleclick = stoi(arg.substr(24));
         } else if (starts_with(arg, "--device-name=")) {
             device_name = std::string(arg.substr(14));
+        } else if (starts_with(arg, "--matrix-name=")) {
+            matrix_name = std::string(arg.substr(14));
         } else if (starts_with(arg, "--device-id=")) {
             device_id = stou(arg.substr(12));
         } else if (arg == "--verbose") {
@@ -144,6 +150,7 @@ int main(int argc, char** argv)
         else
             printf("device-id:                  <UNSET>\n");
         printf("device-name:                '%s'\n", device_name.c_str());
+        printf("matrix-name:                '%s'\n", matrix_name.c_str());
         printf("output-file-x11-config:     '%s'\n", output_file_x11.c_str());
         printf("output-file-xinput-config:  '%s'\n", output_file_xinput.c_str());
         printf("threshold-misclick:         %d\n", thr_misclick);
@@ -154,7 +161,7 @@ int main(int argc, char** argv)
 
     GuiCalibratorX11 gui(monitor_nr);
     Calibrator  calib(device_name, device_id, thr_misclick, thr_doubleclick,
-                        verbose);
+                        matrix_name, verbose);
 
     if (start_coeff.size() == 0) {
         calib.set_identity();

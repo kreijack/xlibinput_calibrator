@@ -32,8 +32,6 @@
 
 #include "calibrator.hpp"
 
-#define LIBINPUTCALIBRATIONMATRIXPRO "libinput Calibration Matrix"
-
 #ifndef EXIT_SUCCESS
 #define EXIT_SUCCESS 1
 #endif
@@ -51,10 +49,10 @@ enum {
     NUM_POINTS
 };
 
-void Calibrator::getMatrix(const char *name, Mat9 &coeff) {
+void Calibrator::getMatrix(const std::string &name, Mat9 &coeff) {
 
     std::vector<std::string> values;
-    auto ret = xinputtouch.get_prop(device_id, name, values);
+    auto ret = xinputtouch.get_prop(device_id, name.c_str(), values);
 
     if (ret < 0 || values.size() != 9)
         throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
@@ -65,7 +63,7 @@ void Calibrator::getMatrix(const char *name, Mat9 &coeff) {
 
 }
 
-void Calibrator::setMatrix(const char *name, const Mat9 &coeff) {
+void Calibrator::setMatrix(const std::string &name, const Mat9 &coeff) {
 
     Atom float_atom = XInternAtom(display, "FLOAT", false);
     int format = 32;
@@ -74,7 +72,7 @@ void Calibrator::setMatrix(const char *name, const Mat9 &coeff) {
     for (auto x : coeff.coeff)
         values.push_back(std::to_string(x));
 
-    auto ret = xinputtouch.set_prop(device_id, name, float_atom, format, values);
+    auto ret = xinputtouch.set_prop(device_id, name.c_str(), float_atom, format, values);
     if (ret < 0)
         throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
 
@@ -86,6 +84,7 @@ Calibrator::Calibrator(std::string device_name_,
                                  XID device_id_,
                                  const int thr_misclick_,
                                  const int thr_doubleclick_,
+                                 std::string matrix_name_,
                                  bool verbose_) :
         threshold_doubleclick(thr_doubleclick_),
         threshold_misclick(thr_misclick_),
@@ -93,6 +92,7 @@ Calibrator::Calibrator(std::string device_name_,
         verbose(verbose_)
 {
     device_id = device_id_;
+    matrix_name = matrix_name_;
 
     // init
     display = XOpenDisplay(NULL);
@@ -117,7 +117,7 @@ Calibrator::Calibrator(std::string device_name_,
         device_name = res[0].second;
     }
 
-    getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, old_coeff);
+    getMatrix(matrix_name, old_coeff);
     reset_data = true;
 }
 
@@ -125,7 +125,7 @@ void Calibrator::set_identity()
 {
     Mat9 coeff;
     mat9_set_identity(coeff);
-    setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+    setMatrix(matrix_name, coeff);
 }
 
 bool Calibrator::finish(int width, int height)
@@ -339,7 +339,7 @@ bool Calibrator::save_calibration()
 
 bool Calibrator::set_calibration(const Mat9 &coeff) {
     try {
-        setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+        setMatrix(matrix_name, coeff);
     } catch(...) {
         if (verbose)
             printf("Failed to apply axis calibration.\n");
@@ -451,10 +451,13 @@ bool Calibrator::output_xinput(const std::string &output_filename)
     char line[2000];
     std::string outstr;
 
-    snprintf(line, sizeof(line)-1, "\n       xinput set-float-prop \"%s\" \""
-                LIBINPUTCALIBRATIONMATRIXPRO
-                "\" \\\n            %f %f %f %f %f \\\n            %f %f %f %f\n\n", devname.c_str(),
-                result_coeff[0], result_coeff[1], result_coeff[2], result_coeff[3], result_coeff[4], result_coeff[5],
+    snprintf(line, sizeof(line)-1,
+                "\n       xinput set-float-prop \"%s\" \"%s"
+                "\" \\\n            %f %f %f %f %f \\\n            "
+                "%f %f %f %f\n\n",
+                devname.c_str(), matrix_name.c_str(),
+                result_coeff[0], result_coeff[1], result_coeff[2],
+                result_coeff[3], result_coeff[4], result_coeff[5],
                 result_coeff[6], result_coeff[7], result_coeff[8]
                            );
     outstr += line;
@@ -530,7 +533,7 @@ Calibrator::~Calibrator() {
     }
     if (verbose) {
         Mat9 coeff;
-        getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
+        getMatrix(matrix_name, coeff);
         printf("Current calibration values (from XInput):\n");
         mat9_print(coeff);
     }
