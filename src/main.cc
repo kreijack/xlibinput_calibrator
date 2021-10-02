@@ -44,7 +44,7 @@ void show_help() {
         "--verbose                     set verbose to on\n"
         "--dont-save                   don't update X11 setting\n"
         "--matrix=x1,x2..x9            start coefficent matrix\n"
-	"--monitor-number=<n>          show the output on the monitor '<n>'\n"
+        "--monitor-number=<n>          show the output on the monitor '<n>'\n"
         "\n"
         "version: %s\n"
         "\n",
