@@ -128,16 +128,6 @@ void Calibrator::set_identity()
     setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
 }
 
-void Calibrator::getMatrix(Mat9 &coeff)
-{
-    getMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
-}
-
-void Calibrator::setMatrix(const Mat9 &coeff)
-{
-    setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
-}
-
 bool Calibrator::finish(int width, int height)
 {
 
