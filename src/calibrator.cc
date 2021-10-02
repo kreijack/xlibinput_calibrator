@@ -138,9 +138,6 @@ void Calibrator::setMatrix(const Mat9 &coeff)
     setMatrix(LIBINPUTCALIBRATIONMATRIXPRO, coeff);
 }
 
-
-// From Calibrator but with evdev specific invertion option
-// KEEP IN SYNC with Calibrator::finish() !!
 bool Calibrator::finish(int width, int height)
 {
 

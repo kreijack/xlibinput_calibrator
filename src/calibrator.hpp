@@ -38,13 +38,6 @@ class WrongCalibratorException : public std::invalid_argument {
             std::invalid_argument(msg) {}
 };
 
-
-
-
-/***************************************
- * Class for dynamic evdev calibration
- * uses xinput "Evdev Axis Calibration"
- ***************************************/
 class Calibrator
 {
 private:
