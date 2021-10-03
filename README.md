@@ -9,19 +9,23 @@ This project is derived from xinput_calibrator.
 
 ## Usage
 ```
---output-file-x11-config=<filename>   save the output to filename
---output-file-xinput-cmd=<filename>   save the output to filename
---threshold-misclick=<nn>     set the threshold for misclick to <nn>
---threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>
---device-name=<devname>       set the touch screen device by name
---device-id=<devid>           set the touch screen device by id
---show-x11-config             show the config for X11
---show-xinput-cmd             show the config for libinput
---show-matrix                 show the final matrix
---verbose                     set verbose to on
---dont-save                   don't update X11 setting
---matrix=x1,x2..x9            start coefficent matrix
---monitor-nr=<n>              show the ouput in the monitor '<n>'
+xlibinput-calibrator [opts]
+  --output-file-x11-config=<filename>   save the output to filename
+  --output-file-xinput-cmd=<filename>   save the output to filename
+  --threshold-misclick=<nn>     set the threshold for misclick to <nn>
+  --threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>
+  --device-name=<devname>       set the touch screen device by name
+  --device-id=<devid>           set the touch screen device by id
+  --matrix-name=<matrix name>   set the calibration matrix name
+  --show-x11-config             show the config for X11
+  --show-xinput-cmd             show the config for libinput
+  --show-matrix                 show the final matrix
+  --verbose                     set verbose to on
+  --dont-save                   don't update X11 setting
+  --matrix=x1,x2..x9            start coefficent matrix
+  --monitor-nr=<n>              show the ouput in the monitor '<n>'
+  
+xlibinput-calibrator --list-devices
 ```
 
 The possible outcomes of this command are the following:
