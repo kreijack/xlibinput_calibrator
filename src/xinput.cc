@@ -49,6 +49,28 @@ int XInputTouch::find_touch(std::vector<std::pair<XID,std::string>> &ret,
     return found;
 }
 
+std::vector<std::pair<int, std::string>> XInputTouch::list_devices()
+
+{
+    XDeviceInfo	*devices;
+    int		loop;
+    int		num_devices;
+
+    std::vector<std::pair<int, std::string>> ret;
+
+    devices = XListInputDevices(display, &num_devices);
+
+    for (loop=0; loop<num_devices; loop++) {
+        if (!devices[loop].type)
+            continue;
+        ret.push_back({devices[loop].id, devices[loop].name});
+    }
+
+    XFreeDeviceList(devices);
+
+    return ret;
+}
+
 Atom XInputTouch::parse_atom(const char *name) {
     Bool is_atom = True;
     int i;
@@ -207,7 +229,6 @@ XInputTouch::list_props(int dev_id,
     XDevice     *dev;
     int         nprops;
     Atom        *props;
-
 
     dev = XOpenDevice(display, dev_id);
     if (!dev)

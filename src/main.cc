@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2009 Tias Guns
- * Copyright (c) 2020 Goffredo Baroncelli
+ * Copyright (c) 2020,2021 Goffredo Baroncelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,28 +23,33 @@
 
 #include <unistd.h>
 #include <cstdio>
+#include <cstring>
 
 #include "gui_x11.hpp"
 #include "calibrator.hpp"
+#include "xinput.hpp"
 
 extern const char *gitversion;
 
 void show_help() {
-    printf("usage: xlibinput_calibrator [opts]\n"
-        "--output-file-x11-config=<filename>   save the output to filename\n"
-        "--output-file-xinput-cmd=<filename>   save the output to filename\n"
-        "--threshold-misclick=<nn>     set the threshold for misclick to <nn>\n"
-        "--threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>\n"
-        "--device-name=<devname>       set the touch screen device by name\n"
-        "--device-id=<devid>           set the touch screen device by id\n"
-        "--matrix-name=<matrix name>   set the calibration matrix name\n"
-        "--show-x11-config             show the config for X11\n"
-        "--show-xinput-cmd             show the config for libinput\n"
-        "--show-matrix                 show the final matrix\n"
-        "--verbose                     set verbose to on\n"
-        "--dont-save                   don't update X11 setting\n"
-        "--matrix=x1,x2..x9            start coefficent matrix\n"
-        "--monitor-number=<n>          show the output on the monitor '<n>'\n"
+    printf("usage:\n"
+        "xlibinput_calibrator [opts]\n"
+        "    --output-file-x11-config=<filename>   save the output to filename\n"
+        "    --output-file-xinput-cmd=<filename>   save the output to filename\n"
+        "    --threshold-misclick=<nn>     set the threshold for misclick to <nn>\n"
+        "    --threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>\n"
+        "    --device-name=<devname>       set the touch screen device by name\n"
+        "    --device-id=<devid>           set the touch screen device by id\n"
+        "    --matrix-name=<matrix name>   set the calibration matrix name\n"
+        "    --show-x11-config             show the config for X11\n"
+        "    --show-xinput-cmd             show the config for libinput\n"
+        "    --show-matrix                 show the final matrix\n"
+        "    --verbose                     set verbose to on\n"
+        "    --dont-save                   don't update X11 setting\n"
+        "    --matrix=x1,x2..x9            start coefficent matrix\n"
+        "    --monitor-number=<n>          show the output on the monitor '<n>'\n"
+        "\n"
+        "xlibinput_calibrator --list-devices       show the devices availables\n"
         "\n"
         "version: %s\n"
         "\n",
@@ -77,6 +82,30 @@ unsigned long stou(std::string_view s)
     return ret;
 }
 
+static int list_devices(void) {
+    XInputTouch xi;
+    const auto devices = xi.list_devices();
+
+    for (auto && it : devices) {
+        std::map<std::string, std::vector<std::string>> props;
+        printf("%3d: %s\n", it.first, it.second.c_str());
+
+        xi.list_props(it.first, props);
+        for (auto && it2 : props) {
+            printf("\t%s: ", it2.first.c_str());
+            for (auto i = 0u ; i < it2.second.size() ; i++) {
+                if (i)
+                    printf(", ");
+                printf("%s", it2.second[i].c_str());
+            }
+            printf("\n");
+        }
+
+    }
+
+    return 0;
+}
+
 int main(int argc, char** argv)
 {
 
@@ -94,6 +123,9 @@ int main(int argc, char** argv)
     int monitor_nr = 0;
     std::string start_coeff;
     std::string matrix_name = LIBINPUTCALIBRATIONMATRIXPRO;
+
+    if (argc == 2 && !strcmp(argv[1], "--list-devices"))
+        return list_devices();
 
     for (int i = 1 ; i < argc ; i++) {
         const std::string arg{argv[i]};

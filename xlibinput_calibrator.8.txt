@@ -8,6 +8,8 @@ SYNOPSIS
                        [--device-name=<devname>|-device-id=<device-id>]
                        [--show-x11-config] [--show-xinput-cmd]
                        [--monitor-number=<nr>]
+  xlibinput_calibrator --list-devices
+
 DESCRIPTION
   xlibinout_calibrator(8) calibrates a touch screen setting the so called
   libinput _matrix calibration_ using the _xinput_ interfaces.
@@ -62,5 +64,7 @@ OPTIONS
   --monitor-number=<nr>  Set the monitor to display the window. If <nr>
       is equal to 'all', the window will span all the monitors area. Use
       'xrandr --listmonitors' to get the <nr> associated to the monitor.
+
+  --list-devices  Shows all the avilables devices with their ID
 AUTHOR
   Goffredo Baroncelli \<kreijack@inwind.it\>

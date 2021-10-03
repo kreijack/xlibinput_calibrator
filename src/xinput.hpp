@@ -39,6 +39,9 @@ public:
                         std::vector<std::string> &ret);
     int get_prop(int devid, const char *name,
                         std::vector<std::string> &ret);
+
+    std::vector<std::pair<int, std::string>> list_devices();
+
 private:
 
     Atom parse_atom(const char *name);
