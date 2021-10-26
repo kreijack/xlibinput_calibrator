@@ -57,7 +57,8 @@ void show_help() {
     );
 }
 
-#define LIBINPUTCALIBRATIONMATRIXPRO "libinput Calibration Matrix"
+#define CALMATR1 "libinput Calibration Matrix"
+#define CALMATR2 "Coordinate Transformation Matrix"
 
 bool starts_with(std::string_view s1, std::string_view s2)
 {
@@ -122,7 +123,8 @@ int main(int argc, char** argv)
     bool not_save = false;
     int monitor_nr = 0;
     std::string start_coeff;
-    std::string matrix_name = LIBINPUTCALIBRATIONMATRIXPRO;
+    std::string matrix_name;
+    XInputTouch xinputtouch;
 
     if (argc == 2 && !strcmp(argv[1], "--list-devices"))
         return list_devices();
@@ -172,16 +174,72 @@ int main(int argc, char** argv)
         }
     }
 
+    // search a device
+    std::vector<std::pair<XID, std::string>> res;
+    if (xinputtouch.find_touch(res, device_name) < 0)
+        throw WrongCalibratorException("Libinput: Unable to find device");
+
+    if (res.size() == 0)
+        throw WrongCalibratorException("Libinput: Unable to find device");
+
+    if (device_id == (XID)-1 && device_name == "") {
+        device_name = res[0].second;
+        device_id = res[0].first;
+    } else for( auto i : res) {
+        if (device_id != (XID)-1 && device_id == i.first) {
+            device_name = i.second;
+            break;
+        } else if (device_name == i.second) {
+            device_id = i.first;
+            break;
+        }
+    }
+
+    if (device_id == (XID)-1 || device_name == "") {
+        printf("Found the following devices\n");
+        for (auto [id, name] : res)
+            printf("%4lu) %s\n", id, name.c_str());
+        throw WrongCalibratorException("Libinput: Unable to find a specific device");
+    }
+
+    if (verbose) {
+        printf("device-id:                  %lu\n", device_id);
+        printf("device-name:                '%s'\n", device_name.c_str());
+    }
+
+    // find a suitable calibration matrix
+    std::map<std::string, std::vector<std::string>> lprops;
+    if (xinputtouch.list_props(device_id, lprops) < 0) {
+        throw WrongCalibratorException("Libinput: Unable to get the device properties");
+    }
+
+    if (matrix_name == "") {
+        for (auto i : lprops) {
+            if (i.first == CALMATR1) {
+                matrix_name = i.first;
+                break;
+            } else if (i.first == CALMATR2 && matrix_name == "") {
+                matrix_name = i.first;
+                // no break, continue to search CALMATR1 if available
+            }
+        }
+    } else {
+        bool found = false;
+        for (auto i : lprops)
+            if (i.first == matrix_name)
+                found = true;
+        if (!found)
+            throw WrongCalibratorException("Libinput: Unable to find a suitable calibration matrix");
+    }
+
+    if (matrix_name == "")
+        throw WrongCalibratorException("Libinput: Unable to find a suitable calibration matrix");
+
     if (verbose) {
         printf("show-matrix:                %s\n", show_matrix ? "yes" : "no");
         printf("show-x11-config:            %s\n", show_conf_x11 ? "yes" : "no");
         printf("show-libinput-config:       %s\n", show_conf_xinput ? "yes" : "no");
         printf("not-save:                   %s\n", show_conf_xinput ? "yes" : "no");
-        if (device_id != (XID)-1)
-            printf("device-id:                  %lu\n", device_id);
-        else
-            printf("device-id:                  <UNSET>\n");
-        printf("device-name:                '%s'\n", device_name.c_str());
         printf("matrix-name:                '%s'\n", matrix_name.c_str());
         printf("output-file-x11-config:     '%s'\n", output_file_x11.c_str());
         printf("output-file-xinput-config:  '%s'\n", output_file_xinput.c_str());

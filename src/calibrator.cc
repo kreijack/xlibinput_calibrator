@@ -100,23 +100,6 @@ Calibrator::Calibrator(std::string device_name_,
         throw WrongCalibratorException("Libinput: Unable to connect to X server");
     }
 
-    if (device_id == (XID)-1) {
-        std::vector<std::pair<XID, std::string>> res;
-        auto ret = xinputtouch.find_touch(res, device_name);
-
-        if (ret < 0) {
-            throw WrongCalibratorException("Libinput: Unable to find device");
-        } else if (res.size() != 1) {
-            printf("Found the following devices\n");
-            for (auto [id, name] : res)
-                printf("%4lu) %s\n", id, name.c_str());
-            throw WrongCalibratorException("Libinput: Unable to find a specific device");
-        }
-
-        device_id = res[0].first;
-        device_name = res[0].second;
-    }
-
     getMatrix(matrix_name, old_coeff);
     reset_data = true;
 }
