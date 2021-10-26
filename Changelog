@@ -1,13 +1,13 @@
-devel
-        - small code clean up
-        - add --list-devices command
-        - add --matrix-name options
+v0.9 - 2021-10-26
+	- small code clean up
+	- add --list-devices command
+	- add --matrix-name options
 
 v0.8 - 2021-05-28
-        - bugfix: call XFlush to be sure that the setting are stored
+	- bugfix: call XFlush to be sure that the setting are stored
 
 v0.7 - 2021-01-26
-        - add make install target
+	- add make install target
 
 v0.6 - 2021-01-24
 	- changed the man page format from nroff to a txt2man based
