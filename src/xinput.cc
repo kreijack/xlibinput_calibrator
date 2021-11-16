@@ -35,7 +35,7 @@ int XInputTouch::find_touch(std::vector<std::pair<XID,std::string>> &ret,
 
     for (loop=0; loop<num_devices; loop++) {
 
-        if (devices[loop].type != xi_touchscreen)
+        if (devices[loop].type != xi_touchscreen && devices[loop].type != xi_mouse)
             continue;
         if (name.size() > 0 && name != devices[loop].name)
             continue;
