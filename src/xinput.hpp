@@ -25,8 +25,7 @@ public:
     XInputTouch & operator = (XInputTouch &&) = delete;
     ~XInputTouch();
 
-    int find_touch(std::vector<std::pair<XID,std::string>> &ret,
-                        std::string_view name);
+    int find_touch(std::pair<XID,std::string> &ret);
     int list_props(int dev_id,
                         std::map<std::string, std::vector<std::string>> &ret);
     int set_prop(int devid, const char *name, Atom type, int format,

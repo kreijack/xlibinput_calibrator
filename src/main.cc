@@ -124,7 +124,6 @@ int main(int argc, char** argv)
     int monitor_nr = 0;
     std::string start_coeff;
     std::string matrix_name;
-    XInputTouch xinputtouch;
 
     if (argc == 2 && !strcmp(argv[1], "--list-devices"))
         return list_devices();
@@ -174,31 +173,34 @@ int main(int argc, char** argv)
         }
     }
 
-    // search a device
-    std::vector<std::pair<XID, std::string>> res;
-    if (xinputtouch.find_touch(res, device_name) < 0)
-        throw WrongCalibratorException("Libinput: Unable to find device");
-
-    if (res.size() == 0)
-        throw WrongCalibratorException("Libinput: Unable to find device");
+    XInputTouch xinputtouch;
 
     if (device_id == (XID)-1 && device_name == "") {
-        device_name = res[0].second;
-        device_id = res[0].first;
-    } else for( auto i : res) {
-        if (device_id != (XID)-1 && device_id == i.first) {
-            device_name = i.second;
-            break;
-        } else if (device_name == i.second) {
-            device_id = i.first;
-            break;
+        std::pair<XID, std::string> dev;
+        if (xinputtouch.find_touch(dev) < 0)
+            throw WrongCalibratorException("Libinput: Unable to find device");
+
+        device_name = dev.second;
+        device_id = dev.first;
+    } else {
+        // search a device
+        const auto res = xinputtouch.list_devices();
+        if (res.size() == 0)
+            throw WrongCalibratorException("Libinput: Unable to find device");
+
+        for( auto i : res) {
+            if (device_id != (XID)-1 && device_id == (XID)i.first) {
+                device_name = i.second;
+                break;
+            } else if (device_name == i.second) {
+                device_id = i.first;
+                break;
+            }
         }
     }
 
     if (device_id == (XID)-1 || device_name == "") {
-        printf("Found the following devices\n");
-        for (auto [id, name] : res)
-            printf("%4lu) %s\n", id, name.c_str());
+        printf("ERROR: unable to find a devices");
         throw WrongCalibratorException("Libinput: Unable to find a specific device");
     }
 
