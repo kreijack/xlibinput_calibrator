@@ -1,3 +1,10 @@
+xlibinput-calibrator (0.10) stable; urgency=medium
+
+  * update to upstream v0.10
+
+ -- Goffredo Baroncelli <kreijack@libero.it>  Fri, 26 Nov 2021 19:00:00 -0000
+
+
 xlibinput-calibrator (0.9) stable; urgency=medium
 
   * debian directory created
