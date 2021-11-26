@@ -84,5 +84,5 @@ The rest of the code is by Goffredo Baroncelli <kreijack@inwind.it>
 TODO:
 - [ ] Bugfix
 - [X] Add manpage
-- [ ] Add debian package (debian/....)
+- [X] Add debian package (debian/....)
 - [ ] Add rpm package (spec file)

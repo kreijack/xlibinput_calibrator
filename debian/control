@@ -1,0 +1,22 @@
+Source: xlibinput-calibrator
+Section: utils
+Priority: optional
+Maintainer: Ali Riza KESKIN <aliriza.keskin@pardus.org.tr>
+Build-Depends: make,
+               libxrandr-dev,
+               libxi-dev,
+               libx11-dev,
+               gcc,
+               txt2man
+               
+Standards-Version: 4.3.0
+Homepage: https://github.com/kreijack/xlibinput_calibrator
+Package: xlibinput-calibrator
+Architecture: any
+Depends: ${misc:Depends},
+         libc6,
+         x11-xserver-utils,
+         xinput
+Description: Calibrate a touch screen when X11 relies on libinput.
+ The aim of this project is to allow to calibrate a touch screen when X11 relies on libinput. For older X11, which doesn't relies on libinput, you have to use the old xinput_calibrator.
+
