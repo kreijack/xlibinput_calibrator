@@ -5,3 +5,4 @@ version.cc
 *.o
 xlibinput_calibrator.8
 uinput-touch-simulator/uinput-touch-simulation
+debian/xlibinput-calibrator

@@ -1,6 +1,8 @@
 prefix = /usr/
 
-all: src/xlibinput_calibrator
+all: build
+
+build: src/xlibinput_calibrator
 
 src/xlibinput_calibrator:
 	make -C src
