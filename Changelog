@@ -1,3 +1,8 @@
+v0.10 - 2021-11-26
+	- replace the throw() with a printf() in the main()
+	- select any device using --device-id or --device-name
+	- select automatically the matrix calibration
+
 v0.9 - 2021-10-26
 	- small code clean up
 	- add --list-devices command

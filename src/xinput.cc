@@ -21,8 +21,7 @@ XInputTouch::~XInputTouch() {
     XCloseDisplay(display);
 }
 
-int XInputTouch::find_touch(std::vector<std::pair<XID,std::string>> &ret,
-                                    std::string_view name)
+int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
 
 {
     XDeviceInfo	*devices;
@@ -30,17 +29,20 @@ int XInputTouch::find_touch(std::vector<std::pair<XID,std::string>> &ret,
     int		loop;
     int		num_devices;
 
-    ret.clear();
     devices = XListInputDevices(display, &num_devices);
 
     for (loop=0; loop<num_devices; loop++) {
 
         if (devices[loop].type != xi_touchscreen)
             continue;
-        if (name.size() > 0 && name != devices[loop].name)
-            continue;
 
-        ret.push_back({devices[loop].id, devices[loop].name});
+        if (found == 0) {
+            /*  check if we already ffound a device */
+            found = -1;
+            break;
+        }
+
+        ret = {devices[loop].id, devices[loop].name};
         found = 0;
     }
 

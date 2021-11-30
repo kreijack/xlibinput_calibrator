@@ -128,7 +128,6 @@ int main(int argc, char** argv)
     int monitor_nr = 0;
     std::string start_coeff;
     std::string matrix_name;
-    XInputTouch xinputtouch;
 
     if (argc == 2 && !strcmp(argv[1], "--list-devices"))
         return list_devices();
@@ -178,32 +177,39 @@ int main(int argc, char** argv)
         }
     }
 
-    // search a device
-    std::vector<std::pair<XID, std::string>> res;
-    if (xinputtouch.find_touch(res, device_name) < 0)
-        throw WrongCalibratorException("Libinput: Unable to find device");
-
-    if (res.size() == 0)
-        throw WrongCalibratorException("Libinput: Unable to find device");
+    XInputTouch xinputtouch;
 
     if (device_id == (XID)-1 && device_name == "") {
-        device_name = res[0].second;
-        device_id = res[0].first;
-    } else for( auto i : res) {
-        if (device_id != (XID)-1 && device_id == i.first) {
-            device_name = i.second;
-            break;
-        } else if (device_name == i.second) {
-            device_id = i.first;
-            break;
+        std::pair<XID, std::string> dev;
+        if (xinputtouch.find_touch(dev) < 0) {
+            fprintf(stderr, "ERROR: Unable to find device\n");
+            exit(100);
+        }
+
+        device_name = dev.second;
+        device_id = dev.first;
+    } else {
+        // search a device
+        const auto res = xinputtouch.list_devices();
+        if (res.size() == 0) {
+            fprintf(stderr, "ERROR: Unable to find device\n");
+            exit(100);
+        }
+
+        for( auto i : res) {
+            if (device_id != (XID)-1 && device_id == (XID)i.first) {
+                device_name = i.second;
+                break;
+            } else if (device_name == i.second) {
+                device_id = i.first;
+                break;
+            }
         }
     }
 
-    if (device_id == (XID)-1 || device_name == "") {
-        printf("Found the following devices\n");
-        for (auto [id, name] : res)
-            printf("%4lu) %s\n", id, name.c_str());
-        throw WrongCalibratorException("Libinput: Unable to find a specific device");
+    if (device_id == (XID)-1 || device_name == "")  {
+        fprintf(stderr, "ERROR: Unable to find device\n");
+        exit(100);
     }
 
     if (verbose) {
@@ -214,7 +220,8 @@ int main(int argc, char** argv)
     // find a suitable calibration matrix
     std::map<std::string, std::vector<std::string>> lprops;
     if (xinputtouch.list_props(device_id, lprops) < 0) {
-        throw WrongCalibratorException("Libinput: Unable to get the device properties");
+        fprintf(stderr, "ERROR: Unable to get the device properties\n");
+        exit(100);
     }
 
     if (matrix_name == "") {
@@ -232,12 +239,16 @@ int main(int argc, char** argv)
         for (auto i : lprops)
             if (i.first == matrix_name)
                 found = true;
-        if (!found)
-            throw WrongCalibratorException("Libinput: Unable to find a suitable calibration matrix");
+        if (!found) {
+            fprintf(stderr, "ERROR: Unable to find a suitable calibration matrix\n");
+            exit(100);
+        }
     }
 
-    if (matrix_name == "")
-        throw WrongCalibratorException("Libinput: Unable to find a suitable calibration matrix");
+    if (matrix_name == "") {
+        fprintf(stderr, "ERROR: Unable to find a suitable calibration matrix\n");
+        exit(100);
+    }
 
     if (verbose) {
         printf("show-matrix:                %s\n", show_matrix ? "yes" : "no");
@@ -268,7 +279,7 @@ int main(int argc, char** argv)
         if (nr == 9) {
             calib.set_calibration(coeff);
         } else {
-            printf("ERROR: wrong matrix; abort\n");
+            fprintf(stderr, "ERROR: wrong matrix; abort\n");
             exit(1);
         }
     }
