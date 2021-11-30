@@ -56,4 +56,4 @@ msgstr "Dokunmatik ekran kalibratörü"
 #: src/main.cc:328
 #, c-format
 msgid "Update the X11 calibration matrix\n"
-msgstr "X11 kalibrasyon martix'ini güncelle"
+msgstr "X11 kalibrasyon martix'ini güncelle\n"
