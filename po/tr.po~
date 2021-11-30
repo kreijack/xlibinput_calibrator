@@ -1,0 +1,39 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-30 06:38-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/gui_x11.cc:76
+msgid "(To abort, press any key or wait)"
+msgstr "(İptal etmek için bir tuşa basın veya bekleyin)"
+
+#: src/main.cc:190
+#, c-format
+msgid "ERROR: Unable to find device\n"
+msgstr "Hata: Donanım bulunamadı\n"
+
+#: src/gui_x11.cc:313
+msgid "Mis-click detected, restarting..."
+msgstr "Mis-click tespit edildi. yeniden başlıyor..."
+
+#: src/gui_x11.cc:74
+msgid "Press the point, use a stylus to increase precision."
+msgstr "Noktaya basın, hassasiyeti artırmak için bir kalem kullanın."
+
+#: src/gui_x11.cc:73
+msgid "Touchscreen Calibration"
+msgstr "Dokunmatik ekran kalibratörü"
