@@ -25,7 +25,7 @@ install: src/xlibinput_calibrator xlibinput_calibrator.8
 		$(DESTDIR)$(prefix)/share/man/man8/xlibinput_calibrator.8
 	@for lang in $(locales) ; do \
 	    echo Installing locale: $$lang ; \
-	    install -D $(DESTDIR)$(prefix)/share/locale/$$lang/LC_MESSAGES/xlibinput-calibrator.mo ; \
+	    install -D po/$$lang.mo $(DESTDIR)$(prefix)/share/locale/$$lang/LC_MESSAGES/xlibinput-calibrator.mo ; \
 	done
 
 distclean: clean
