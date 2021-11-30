@@ -110,6 +110,10 @@ static int list_devices(void) {
 int main(int argc, char** argv)
 {
 
+    setlocale (LC_ALL, "");
+    bindtextdomain ("xlibinput-calibrator", "/usr/share/locale/");
+    textdomain ("xlibinput-calibrator");
+
     std::string output_file_x11;
     std::string output_file_xinput;
     bool verbose = false;

@@ -66,10 +66,10 @@ static const int clock_line_width = 10;
 static const int font_size = 16;
 static const int help_lines = 4;
 static const std::string help_text[help_lines] = {
-    "Touchscreen Calibration",
-    "Press the point, use a stylus to increase precision.",
+    _("Touchscreen Calibration"),
+    _("Press the point, use a stylus to increase precision."),
     "",
-    "(To abort, press any key or wait)"
+    _("(To abort, press any key or wait)")
 };
 
 // color management
@@ -306,7 +306,7 @@ void GuiCalibratorX11::on_button_press_event(XEvent event)
     bool success = add_click_ext(event.xbutton.x, event.xbutton.y);
 
     if (!success) {
-        draw_message("Mis-click detected, restarting...");
+        draw_message(_("Mis-click detected, restarting..."));
         points_count = 0;
         reset_ext();
     } else {
