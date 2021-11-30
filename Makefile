@@ -45,7 +45,7 @@ pot:
 	xgettext --keyword=_ --language=C --add-comments --sort-output -o po/xlibinput-calibrator.pot src/*.cc
 	@for lang in $(locales) ; do \
 	    echo Updating locale: $$lang ; \
-	    msgmerge --update po/$$lang po/xlibinput-calibrator.pot ; \
+	    msgmerge --update po/$$lang.po po/xlibinput-calibrator.pot ; \
 	done
 
 .PHONY: all install clean distclean uninstall

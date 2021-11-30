@@ -176,7 +176,7 @@ int main(int argc, char** argv)
             show_help();
             exit(0);
         } else {
-            printf("ERROR: unknown parameter '%s'\n", argv[i]);
+            printf(_("ERROR: unknown parameter '%s'\n"), argv[i]);
             show_help();
             exit(1);
         }
@@ -187,7 +187,7 @@ int main(int argc, char** argv)
     if (device_id == (XID)-1 && device_name == "") {
         std::pair<XID, std::string> dev;
         if (xinputtouch.find_touch(dev) < 0) {
-            fprintf(stderr, "ERROR: Unable to find device\n");
+            fprintf(stderr, _("ERROR: Unable to find device\n"));
             exit(100);
         }
 
@@ -197,7 +197,7 @@ int main(int argc, char** argv)
         // search a device
         const auto res = xinputtouch.list_devices();
         if (res.size() == 0) {
-            fprintf(stderr, "ERROR: Unable to find device\n");
+            fprintf(stderr, _("ERROR: Unable to find device\n"));
             exit(100);
         }
 
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
     }
 
     if (device_id == (XID)-1 || device_name == "")  {
-        fprintf(stderr, "ERROR: Unable to find device\n");
+        fprintf(stderr, _("ERROR: Unable to find device\n"));
         exit(100);
     }
 
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
     // find a suitable calibration matrix
     std::map<std::string, std::vector<std::string>> lprops;
     if (xinputtouch.list_props(device_id, lprops) < 0) {
-        fprintf(stderr, "ERROR: Unable to get the device properties\n");
+        fprintf(stderr, _("ERROR: Unable to get the device properties\n"));
         exit(100);
     }
 
@@ -245,13 +245,13 @@ int main(int argc, char** argv)
             if (i.first == matrix_name)
                 found = true;
         if (!found) {
-            fprintf(stderr, "ERROR: Unable to find a suitable calibration matrix\n");
+            fprintf(stderr, _("ERROR: Unable to find a suitable calibration matrix\n"));
             exit(100);
         }
     }
 
     if (matrix_name == "") {
-        fprintf(stderr, "ERROR: Unable to find a suitable calibration matrix\n");
+        fprintf(stderr, _("ERROR: Unable to find a suitable calibration matrix\n"));
         exit(100);
     }
 
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
 
     if (!not_save) {
         if (verbose)
-            printf("Update the X11 calibration matrix\n");
+            printf(_("Update the X11 calibration matrix\n"));
         calib.save_calibration();
     }
 

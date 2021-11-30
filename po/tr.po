@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-30 11:16+0000\n"
+"POT-Creation-Date: 2021-11-30 06:42-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,43 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/gui_x11.cc:72
+#: src/gui_x11.cc:76
 msgid "(To abort, press any key or wait)"
 msgstr "(İptal etmek için bir tuşa basın veya bekleyin)"
 
-#: src/gui_x11.cc:309
+#: src/main.cc:248 src/main.cc:254
+#, fuzzy, c-format
+msgid "ERROR: Unable to find a suitable calibration matrix\n"
+msgstr "Hata: Geçerli bir donanım bulunamadı\n"
+
+#: src/main.cc:190 src/main.cc:200 src/main.cc:216
+#, c-format
+msgid "ERROR: Unable to find device\n"
+msgstr "Hata: Donanım bulunamadı\n"
+
+#: src/main.cc:228
+#, fuzzy, c-format
+msgid "ERROR: Unable to get the device properties\n"
+msgstr "Hata: Donanım özelliklerine ulaşılamadı\n"
+
+#: src/main.cc:179
+#, c-format
+msgid "ERROR: unknown parameter '%s'\n"
+msgstr "Hata: bilinmeyen paramete '%s'\n"
+
+#: src/gui_x11.cc:313
 msgid "Mis-click detected, restarting..."
 msgstr "Mis-click tespit edildi. yeniden başlıyor..."
 
-#: src/gui_x11.cc:70
+#: src/gui_x11.cc:74
 msgid "Press the point, use a stylus to increase precision."
 msgstr "Noktaya basın, hassasiyeti artırmak için bir kalem kullanın."
 
-#: src/gui_x11.cc:69
+#: src/gui_x11.cc:73
 msgid "Touchscreen Calibration"
 msgstr "Dokunmatik ekran kalibratörü"
+
+#: src/main.cc:328
+#, c-format
+msgid "Update the X11 calibration matrix\n"
+msgstr "X11 kalibrasyon martix'ini güncelle"
