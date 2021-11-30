@@ -42,6 +42,10 @@
 
 #include "gui_x11.hpp"
 
+#include <libintl.h>
+#include <locale.h>
+
+#define _(STRING) gettext(STRING)
 
 /// Names of the points
 enum {

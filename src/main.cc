@@ -29,6 +29,11 @@
 #include "calibrator.hpp"
 #include "xinput.hpp"
 
+#include <libintl.h>
+#include <locale.h>
+
+#define _(STRING) gettext(STRING)
+
 extern const char *gitversion;
 
 void show_help() {
