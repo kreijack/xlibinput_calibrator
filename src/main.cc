@@ -47,6 +47,7 @@ void show_help() {
         "    --verbose                     set verbose to on\n"
         "    --dont-save                   don't update X11 setting\n"
         "    --matrix=x1,x2..x9            start coefficent matrix\n"
+        "    --display=<display>           set the X11 display\n"
         "    --monitor-number=<n>          show the output on the monitor '<n>'\n"
         "\n"
         "xlibinput_calibrator --list-devices       show the devices availables\n"
@@ -83,8 +84,8 @@ unsigned long stou(std::string_view s)
     return ret;
 }
 
-static int list_devices(void) {
-    XInputTouch xi;
+static int list_devices(Display *display) {
+    XInputTouch xi(display);
     const auto devices = xi.list_devices();
 
     for (auto && it : devices) {
@@ -124,9 +125,12 @@ int main(int argc, char** argv)
     int monitor_nr = 0;
     std::string start_coeff;
     std::string matrix_name;
+    std::string DisplayName = "";
+    Display *display;
+    bool start_list_devices = false;
 
-    if (argc == 2 && !strcmp(argv[1], "--list-devices"))
-        return list_devices();
+    if (getenv("DISPLAY"))
+        DisplayName = getenv("DISPLAY");
 
     for (int i = 1 ; i < argc ; i++) {
         const std::string arg{argv[i]};
@@ -149,6 +153,8 @@ int main(int argc, char** argv)
             device_name = std::string(arg.substr(14));
         } else if (starts_with(arg, "--matrix-name=")) {
             matrix_name = std::string(arg.substr(14));
+        } else if (starts_with(arg, "--display=")) {
+            DisplayName = std::string(arg.substr(10));
         } else if (starts_with(arg, "--device-id=")) {
             device_id = stou(arg.substr(12));
         } else if (arg == "--verbose") {
@@ -163,6 +169,8 @@ int main(int argc, char** argv)
             show_matrix = true;
         } else if (starts_with(arg, "--start-matrix=")) {
             start_coeff = arg.substr(15);
+        } else if (arg == "--list-devices") {
+            start_list_devices = true;
         } else if (arg == "--help" || arg == "-h") {
             show_help();
             exit(0);
@@ -173,7 +181,20 @@ int main(int argc, char** argv)
         }
     }
 
-    XInputTouch xinputtouch;
+    if (DisplayName == "") {
+        fprintf(stderr, "ERROR: cannot find a vilid DISPLAY to open\n");
+        exit(1);
+    }
+    display = XOpenDisplay(DisplayName.c_str());
+    if (!display) {
+        fprintf(stderr, "ERROR: can't open display '%s'\n", DisplayName.c_str());
+        exit(1);
+    }
+
+    if (start_list_devices)
+        return list_devices(display);
+
+    XInputTouch xinputtouch(display);
 
     if (device_id == (XID)-1 && device_name == "") {
         std::pair<XID, std::string> dev;
@@ -260,8 +281,8 @@ int main(int argc, char** argv)
     }
 
 
-    GuiCalibratorX11 gui(monitor_nr);
-    Calibrator  calib(device_name, device_id, thr_misclick, thr_doubleclick,
+    GuiCalibratorX11 gui(display, monitor_nr);
+    Calibrator  calib(display, device_name, device_id, thr_misclick, thr_doubleclick,
                         matrix_name, verbose);
 
     if (start_coeff.size() == 0) {

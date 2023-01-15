@@ -16,13 +16,8 @@
 
 class XInputTouch {
 public:
-    XInputTouch(const char *display) : XInputTouch(XOpenDisplay(display)) { }
-    XInputTouch() : XInputTouch(getenv("DISPLAY")) { }
+    XInputTouch(Display *display);
 
-    XInputTouch(const XInputTouch &) = delete;
-    XInputTouch(XInputTouch &&) = delete;
-    XInputTouch & operator = (const XInputTouch &) = delete;
-    XInputTouch & operator = (XInputTouch &&) = delete;
     ~XInputTouch();
 
     int find_touch(std::pair<XID,std::string> &ret);
@@ -44,7 +39,6 @@ public:
 private:
 
     Atom parse_atom(const char *name);
-    XInputTouch(Display *display);
     Display *display;
     Atom xi_touchscreen;
     Atom xi_mouse;

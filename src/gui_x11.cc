@@ -76,13 +76,9 @@ static const std::string help_text[help_lines] = {
 
 static const char* colors[nr_colors] = {"BLACK", "WHITE", "GRAY", "DIMGRAY", "RED"};
 
-GuiCalibratorX11::GuiCalibratorX11(int mnr)
-  : time_elapsed(0), points_count(0), monitor_nr(mnr)
+GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr)
+  : time_elapsed(0), points_count(0), monitor_nr(mnr), display(display_)
 {
-    display = XOpenDisplay(NULL);
-    if (display == NULL) {
-        throw std::runtime_error("Unable to connect to X server");
-    }
     screen_num = DefaultScreen(display);
     // Load font and get font information structure
     font_info = XLoadQueryFont(display, "9x15");
@@ -90,7 +86,6 @@ GuiCalibratorX11::GuiCalibratorX11(int mnr)
         // fall back to native font
         font_info = XLoadQueryFont(display, "fixed");
         if (font_info == NULL) {
-            XCloseDisplay(display);
             throw std::runtime_error("Unable to open neither '9x15' nor 'fixed' font");
         }
     }
@@ -185,7 +180,6 @@ GuiCalibratorX11::~GuiCalibratorX11()
     XUngrabPointer(display, CurrentTime);
     XUngrabKeyboard(display, CurrentTime);
     XFreeGC(display, gc);
-    XCloseDisplay(display);
 }
 
 void GuiCalibratorX11::set_window_size(int x, int y, int width, int height) {

@@ -18,7 +18,6 @@ XInputTouch::XInputTouch(Display *display_) {
 }
 
 XInputTouch::~XInputTouch() {
-    XCloseDisplay(display);
 }
 
 int XInputTouch::find_touch(std::pair<XID,std::string> &ret)

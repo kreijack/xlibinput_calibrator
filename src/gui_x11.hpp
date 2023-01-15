@@ -65,7 +65,7 @@ class GuiCalibratorX11
 public:
     ~GuiCalibratorX11();
     bool mainloop();
-    GuiCalibratorX11(int monitor_nr = 1);
+    GuiCalibratorX11(Display *display, int monitor_nr = 1);
 
 private:
     // Data

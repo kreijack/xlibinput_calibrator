@@ -52,7 +52,7 @@ enum {
 void Calibrator::getMatrix(const std::string &name, Mat9 &coeff) {
 
     std::vector<std::string> values;
-    auto ret = xinputtouch.get_prop(device_id, name.c_str(), values);
+    auto ret = xinputtouch->get_prop(device_id, name.c_str(), values);
 
     if (ret < 0 || values.size() != 9)
         throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
@@ -72,7 +72,7 @@ void Calibrator::setMatrix(const std::string &name, const Mat9 &coeff) {
     for (auto x : coeff.coeff)
         values.push_back(std::to_string(x));
 
-    auto ret = xinputtouch.set_prop(device_id, name.c_str(), float_atom, format, values);
+    auto ret = xinputtouch->set_prop(device_id, name.c_str(), float_atom, format, values);
     if (ret < 0)
         throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
 
@@ -80,12 +80,14 @@ void Calibrator::setMatrix(const std::string &name, const Mat9 &coeff) {
 }
 
 // Constructor
-Calibrator::Calibrator(std::string device_name_,
-                                 XID device_id_,
-                                 const int thr_misclick_,
-                                 const int thr_doubleclick_,
-                                 std::string matrix_name_,
-                                 bool verbose_) :
+Calibrator::Calibrator(Display *display_,
+                         const std::string &device_name_,
+                         XID device_id_,
+                         const int thr_misclick_,
+                         const int thr_doubleclick_,
+                         std::string matrix_name_,
+                         bool verbose_) :
+        display(display_),
         threshold_doubleclick(thr_doubleclick_),
         threshold_misclick(thr_misclick_),
         device_name(device_name_),
@@ -95,10 +97,7 @@ Calibrator::Calibrator(std::string device_name_,
     matrix_name = matrix_name_;
 
     // init
-    display = XOpenDisplay(NULL);
-    if (display == NULL) {
-        throw WrongCalibratorException("Libinput: Unable to connect to X server");
-    }
+    xinputtouch = new XInputTouch(display);
 
     getMatrix(matrix_name, old_coeff);
     reset_data = true;
@@ -520,6 +519,4 @@ Calibrator::~Calibrator() {
         printf("Current calibration values (from XInput):\n");
         mat9_print(coeff);
     }
-    if (display)
-        XCloseDisplay(display);
 }
