@@ -15,7 +15,6 @@ Package: xlibinput-calibrator
 Architecture: any
 Depends: ${misc:Depends},
          libc6,
-         x11-xserver-utils,
          xinput
 Description: Calibrate a touch screen when X11 relies on libinput.
  The aim of this project is to allow to calibrate a touch screen when X11 relies on libinput. For older X11, which doesn't relies on libinput, you have to use the old xinput_calibrator.
