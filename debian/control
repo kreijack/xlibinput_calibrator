@@ -2,11 +2,9 @@ Source: xlibinput-calibrator
 Section: utils
 Priority: optional
 Maintainer: Ali Riza KESKIN <aliriza.keskin@pardus.org.tr>
-Build-Depends: make,
-               libxrandr-dev,
+Build-Depends: libxrandr-dev,
                libxi-dev,
                libx11-dev,
-               gcc,
                txt2man
                
 Standards-Version: 4.3.0
