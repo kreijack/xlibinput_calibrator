@@ -36,13 +36,15 @@ void show_help() {
         "xlibinput_calibrator [opts]\n"
         "    --output-file-x11-config=<filename>   save the output to filename\n"
         "    --output-file-xinput-cmd=<filename>   save the output to filename\n"
+        "    --output-file-udev-libinput-cmd=<filename>     save the output to filename\n"
         "    --threshold-misclick=<nn>     set the threshold for misclick to <nn>\n"
         "    --threshold-doubleclick=<nn>  set the threshold for doubleckick to <nn>\n"
         "    --device-name=<devname>       set the touch screen device by name\n"
         "    --device-id=<devid>           set the touch screen device by id\n"
         "    --matrix-name=<matrix name>   set the calibration matrix name\n"
         "    --show-x11-config             show the config for X11\n"
-        "    --show-xinput-cmd             show the config for libinput\n"
+        "    --show-xinput-cmd             show the config for xinput-libinput\n"
+        "    --show-udev-libinput-cmd      show the config for udev-libinput\n"
         "    --show-matrix                 show the final matrix\n"
         "    --verbose                     set verbose to on\n"
         "    --dont-save                   don't update X11 setting\n"
@@ -113,6 +115,7 @@ int main(int argc, char** argv)
 
     std::string output_file_x11;
     std::string output_file_xinput;
+    std::string output_file_udev_libinput;
     bool verbose = false;
     int thr_misclick = 0;
     int thr_doubleclick = 1;
@@ -121,6 +124,7 @@ int main(int argc, char** argv)
     bool show_matrix = false;
     bool show_conf_x11 = false;
     bool show_conf_xinput = false;
+    bool show_conf_udev_libinput = false;
     bool not_save = false;
     int monitor_nr = 0;
     std::string start_coeff;
@@ -139,6 +143,8 @@ int main(int argc, char** argv)
             output_file_x11 = arg.substr(25);
         } else if (starts_with(arg, "--output-file-xinput-cmd=")) {
             output_file_xinput = arg.substr(25);
+        } else if (starts_with(arg, "--output-file-udev-libinput-cmd=")) {
+            output_file_udev_libinput = arg.substr(32);
         } else if (starts_with(arg, "--monitor-number=")) {
             auto opt = arg.substr(17);
             if (opt == "all")
@@ -165,6 +171,8 @@ int main(int argc, char** argv)
             show_conf_x11 = true;
         } else if (arg == "--show-xinput-cmd") {
             show_conf_xinput = true;
+        } else if (arg == "--show-udev-libinput-cmd") {
+            show_conf_udev_libinput = true;
         } else if (arg == "--show-matrix") {
             show_matrix = true;
         } else if (starts_with(arg, "--start-matrix=")) {
@@ -230,8 +238,8 @@ int main(int argc, char** argv)
     }
 
     if (verbose) {
-        printf("device-id:                  %lu\n", device_id);
-        printf("device-name:                '%s'\n", device_name.c_str());
+        printf("device-id:                         %lu\n", device_id);
+        printf("device-name:                       '%s'\n", device_name.c_str());
     }
 
     // find a suitable calibration matrix
@@ -268,16 +276,17 @@ int main(int argc, char** argv)
     }
 
     if (verbose) {
-        printf("show-matrix:                %s\n", show_matrix ? "yes" : "no");
-        printf("show-x11-config:            %s\n", show_conf_x11 ? "yes" : "no");
-        printf("show-libinput-config:       %s\n", show_conf_xinput ? "yes" : "no");
-        printf("not-save:                   %s\n", show_conf_xinput ? "yes" : "no");
-        printf("matrix-name:                '%s'\n", matrix_name.c_str());
-        printf("output-file-x11-config:     '%s'\n", output_file_x11.c_str());
-        printf("output-file-xinput-config:  '%s'\n", output_file_xinput.c_str());
-        printf("threshold-misclick:         %d\n", thr_misclick);
-        printf("threshold-doubleclick:      %d\n", thr_doubleclick);
-        printf("monitor-number:             %d\n", monitor_nr);
+        printf("show-matrix:                       %s\n", show_matrix ? "yes" : "no");
+        printf("show-x11-config:                   %s\n", show_conf_x11 ? "yes" : "no");
+        printf("show-libinput-config:              %s\n", show_conf_xinput ? "yes" : "no");
+        printf("not-save:                          %s\n", show_conf_xinput ? "yes" : "no");
+        printf("matrix-name:                       '%s'\n", matrix_name.c_str());
+        printf("output-file-x11-config:            '%s'\n", output_file_x11.c_str());
+        printf("output-file-xinput-config:         '%s'\n", output_file_xinput.c_str());
+        printf("output-file-udev-libinput-config:  '%s'\n", output_file_udev_libinput.c_str());
+        printf("threshold-misclick:                %d\n", thr_misclick);
+        printf("threshold-doubleclick:             %d\n", thr_doubleclick);
+        printf("monitor-number:                    %d\n", monitor_nr);
     }
 
 
@@ -345,6 +354,8 @@ int main(int argc, char** argv)
         calib.output_xorgconfd(output_file_x11);
     if (show_conf_xinput || output_file_xinput.size())
         calib.output_xinput(output_file_xinput);
+    if (show_conf_udev_libinput || output_file_udev_libinput.size())
+        calib.output_udev_libinput(output_file_udev_libinput);
 
     return 0;
 }

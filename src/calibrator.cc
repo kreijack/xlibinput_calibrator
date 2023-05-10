@@ -508,6 +508,49 @@ bool Calibrator::output_xorgconfd(const std::string &output_filename)
     return true;
 }
 
+bool Calibrator::output_udev_libinput(const std::string &output_filename)
+{
+
+    if (device_name.size() == 0)
+        fprintf(stderr, "WARNING: device_name is missing\n");
+
+    if(output_filename == "")
+        printf("Copy the command below in a script like /etc/udev/rules.d/touchscreen.rules\n");
+    else
+        printf("Writing calibration script to '%s'\n", output_filename.c_str());
+
+    // create startup script
+    char line[2000];
+    std::string outstr;
+
+    snprintf(line, sizeof(line)-1,
+            "SUBSYSTEM==\"input\", "
+                "KERNEL==\"event[0-9]*\", "
+                "ATTRS{name}==\"%s\", "
+                "ENV{LIBINPUT_CALIBRATION_MATRIX}=\"%f %f %f %f %f %f\"\n",
+            device_name.c_str(),
+            result_coeff[0], result_coeff[1], result_coeff[2],
+            result_coeff[3], result_coeff[4], result_coeff[5]
+    );
+    outstr += line;
+
+    // console out
+    printf("%s", outstr.c_str());
+    // file out
+    if(output_filename != "") {
+        FILE* fid = fopen(output_filename.c_str(), "w");
+        if (fid == NULL) {
+            fprintf(stderr, "Error: Can't open '%s' for writing. Make sure you have the necessary rights\n", output_filename.c_str());
+            fprintf(stderr, "New calibration data NOT saved\n");
+            return false;
+        }
+        fprintf(fid, "%s", outstr.c_str());
+        fclose(fid);
+    }
+
+    return true;
+}
+
 Calibrator::~Calibrator() {
     if (reset_data) {
         printf("Restore previous calibration values\n");

@@ -24,6 +24,9 @@ OPTIONS
   --output-file-xinput-cmd=<filename>  Set the filename where the xinput
       command will be saved. Implies --show-xinput-cmd.
 
+  --output-file-udev-libinput-cmd=<filename>  Set the filename where the udev
+      script will be saved. Implies --show-udev-libinput-cmd.
+
   --threshold-misclick=<nn>  Set the threshold for accept or reject a click.
       The four clicks have to
       be the in the corners of a rectagle. The value passed are the maximum
@@ -48,7 +51,10 @@ OPTIONS
 
   --display=<display>  Set the X11 display.
 
-  --show-xinput-cmd  Show the the xinput(1) command to the the
+  --show-xinput-cmd  Show the the xinput(1) command to set the
+      matrix_calibration.
+
+  --show-udev-libinput-cmd  Show the the udev script for libinput to set the
       matrix_calibration.
 
   --show-matrix  Show the final matrix when the program ends.
