@@ -4,7 +4,7 @@ OBJECTS= $(SRCS:.cc=.o)
 LIBS=-lX11 -lXi
 LDFLAGS=-std=c++17
 
-# uncomment the lines below f you want to use xrandr extension set
+# uncomment the lines below if you want to use xrandr extension set
 CXXFLAGS+= -DHAVE_X11_XRANDR
 LIBS+= -lXrandr
 

@@ -46,12 +46,13 @@ private:
     XID         device_id;
     Mat9        old_coeff;
     bool        reset_data;
-    XInputTouch xinputtouch;
+    XInputTouch *xinputtouch = nullptr;
     std::string matrix_name;
 
 
 public:
-    Calibrator( std::string device_name_,
+    Calibrator( Display *display,
+                    const std::string &device_name,
                     XID device_id,
                     const int thr_misclick,
                     const int thr_doubleclick,

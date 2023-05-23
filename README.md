@@ -21,6 +21,7 @@ xlibinput-calibrator [opts]
   --show-xinput-cmd             show the config for libinput
   --show-matrix                 show the final matrix
   --verbose                     set verbose to on
+  --display                     set X11 display server
   --dont-save                   don't update X11 setting
   --matrix=x1,x2..x9            start coefficent matrix
   --monitor-nr=<n>              show the ouput in the monitor '<n>'
@@ -49,7 +50,7 @@ sets the calibration matrix to the identity (i.e. all 1 in the diagonal). With t
 * libxi-dev
 * libx11-dev
 * C++ 17 compiler
-* xrandr (optional)
+* xrandr (see src/Makefile, to avoid it)
 * txt2man
 
 ## Compile

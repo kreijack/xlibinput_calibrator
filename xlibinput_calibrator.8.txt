@@ -7,7 +7,7 @@ SYNOPSIS
                        [--threshold-doubleclick=<nn>] [--show-matrix]
                        [--device-name=<devname>|-device-id=<device-id>]
                        [--show-x11-config] [--show-xinput-cmd]
-                       [--monitor-number=<nr>]
+                       [--monitor-number=<nr>] [-display=<display>]
   xlibinput_calibrator --list-devices
 
 DESCRIPTION
@@ -45,6 +45,8 @@ OPTIONS
 
   --show-x11-config  Show the the `X11` file configuration with the new
       matrix_calibration.
+
+  --display=<display>  Set the X11 display.
 
   --show-xinput-cmd  Show the the xinput(1) command to the the
       matrix_calibration.
