@@ -46,7 +46,9 @@ int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
 
 {
     XDeviceInfo	*devices;
-    int     found = -1;
+    std::pair<XID,std::string> ret_ts, ret_cal;
+    int         found_touchscreen = 0;
+    int         found_calib_matrix = 0;
     int		loop;
     int		num_devices;
 
@@ -54,22 +56,41 @@ int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
 
     for (loop=0; loop<num_devices; loop++) {
 
-        if (devices[loop].type != xi_touchscreen)
+        if (!devices[loop].type)
             continue;
 
-        if (found == 0) {
-            /*  check if we already ffound a device */
-            found = -1;
-            break;
+        if (devices[loop].type == xi_touchscreen) {
+            found_touchscreen++;
+            ret_ts = {devices[loop].id, devices[loop].name};
+        }
+        //Fall back on checking if device has a calibration matrix.
+        //Some devices don't report as touchscreens, but have a calibration matrix.
+        else if(has_prop(devices[loop].id, "libinput Calibration Matrix") == 0) {
+            found_calib_matrix++;
+            ret_cal = {devices[loop].id, devices[loop].name};
         }
 
-        ret = {devices[loop].id, devices[loop].name};
-        found = 0;
     }
 
     XFreeDeviceList(devices);
 
-    return found;
+    //Return -1 unless we find exactly one device, in which case we return 0
+    if(found_touchscreen > 0)
+    {
+        ret = ret_ts;
+        if(found_touchscreen > 1)
+            return -1;
+        return 0;
+    }
+    else if(found_calib_matrix > 0)
+    {
+        ret = ret_cal;
+        if(found_calib_matrix > 1)
+            return -1;
+        return 0;
+    }
+    return -1;
+
 }
 
 std::vector<std::pair<int, std::string>> XInputTouch::list_devices()
@@ -279,6 +300,38 @@ XInputTouch::list_props(int dev_id,
     XCloseDevice(display, dev);
 
     return 0;
+}
+
+int
+XInputTouch::has_prop(int dev_id, const std::string &prop_name)
+{
+    XDevice     *dev;
+    int         nprops;
+    Atom        *props;
+    int         ret = -1;
+
+    dev = XOpenDevice(display, dev_id);
+    if (!dev)
+    {
+        fprintf(stderr, "unable to open device '%d'\n", dev_id);
+        return -2;
+    }
+
+    props = XListDeviceProperties(display, dev, &nprops);
+
+    while(nprops--) {
+        auto name = XGetAtomName(display, props[nprops]);
+        if (name == prop_name)
+            ret = 0;
+        XFree(name);
+        if (ret == 0)
+            break;
+    }
+
+    XFree(props);
+    XCloseDevice(display, dev);
+
+    return ret;
 }
 
 int XInputTouch::set_prop(int devid, const char *name, Atom type, int format,

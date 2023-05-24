@@ -55,6 +55,7 @@ public:
                         std::vector<std::string> &ret);
     int get_prop(int devid, const char *name,
                         std::vector<std::string> &ret);
+    int has_prop(int devid, const std::string &prop_name);
 
     std::vector<std::pair<int, std::string>> list_devices();
 
