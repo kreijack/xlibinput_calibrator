@@ -55,7 +55,7 @@ void Calibrator::getMatrix(const std::string &name, Mat9 &coeff) {
     auto ret = xinputtouch->get_prop(device_id, name.c_str(), values);
 
     if (ret < 0 || values.size() != 9)
-        throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
+        throw WrongCalibratorException("Libinput: \"" + name + "\" property missing, not a (valid) libinput device");
 
     mat9_set_identity(coeff);
     for (unsigned int i = 0 ; i < 9 ; i++)
@@ -74,7 +74,7 @@ void Calibrator::setMatrix(const std::string &name, const Mat9 &coeff) {
 
     auto ret = xinputtouch->set_prop(device_id, name.c_str(), float_atom, format, values);
     if (ret < 0)
-        throw WrongCalibratorException("Libinput: \"libinput Calibration Matrix\" property missing, not a (valid) libinput device");
+        throw WrongCalibratorException("Libinput: \"" + name + "\" property missing, not a (valid) libinput device");
 
 
 }
