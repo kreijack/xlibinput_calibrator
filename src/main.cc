@@ -83,6 +83,17 @@ unsigned long stou(std::string_view s)
     return ret;
 }
 
+static void print_device_not_found(const std::vector<XInputTouch::XDevInfo> &v) {
+    printf("ERROR: Unable to find a default touchscreen to calibrate\n");
+    if (v.size() > 1) {
+        printf("ERROR: Possible alternatives:\n");
+        for (auto &dev : v)
+            printf("ERROR:     %llu - %s\n",
+                   (unsigned long long)dev.id,
+                   dev.name.c_str());
+    }
+}
+
 static int list_devices(Display *display) {
     XInputTouch xi(display);
 
@@ -103,6 +114,14 @@ static int list_devices(Display *display) {
 
     }
 
+    std::vector<XInputTouch::XDevInfo> ret;
+    if (xi.find_touch(ret) != 1) {
+        printf("\n");
+        print_device_not_found(ret);
+    } else {
+        printf("\nINFO: Default touchscreen: %llu - %s\n",
+		(unsigned long long)ret[0].id, ret[0].name.c_str());
+    }
     return 0;
 }
 
@@ -186,7 +205,7 @@ int main(int argc, char** argv)
     }
 
     if (DisplayName == "") {
-        fprintf(stderr, "ERROR: cannot find a vilid DISPLAY to open\n");
+        fprintf(stderr, "ERROR: cannot find a valid DISPLAY to open\n");
         exit(1);
     }
     display = XOpenDisplay(DisplayName.c_str());
@@ -201,14 +220,14 @@ int main(int argc, char** argv)
     XInputTouch xinputtouch(display);
 
     if (device_id == (XID)-1 && device_name == "") {
-        std::pair<XID, std::string> dev;
-        if (xinputtouch.find_touch(dev) < 0) {
-            fprintf(stderr, "ERROR: Unable to find device\n");
+        std::vector<XInputTouch::XDevInfo>  ret;
+        if (xinputtouch.find_touch(ret) != 1) {
+            print_device_not_found(ret);
             exit(100);
         }
 
-        device_name = dev.second;
-        device_id = dev.first;
+        device_name = ret[0].name;
+        device_id = ret[0].id;
     } else {
         // search a device
         const auto res = xinputtouch.list_devices();

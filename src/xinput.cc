@@ -104,43 +104,28 @@ XInputTouch::XInputTouch(Display *display_) {
 XInputTouch::~XInputTouch() {
 }
 
-int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
+int XInputTouch::find_touch(std::vector<XInputTouch::XDevInfo> &ret) {
+    int count = 0;
 
-{
-    XDeviceInfo	*devices;
-    int     found = -1;
-    int		loop;
-    int		num_devices;
-
-    devices = XListInputDevices(display, &num_devices);
-
-    for (loop=0; loop<num_devices; loop++) {
+    for (auto  &dev: list_devices()) {
 
         /* Can't query properties of devices that have no type at all,
          * so check that first. */
-        if (!devices[loop].type)
+        if (!dev.type)
             continue;
         /* Some touchscreens identify as xi_mouse, but still have a
          * calibration matrix, so check for that as well as just
          * xi_touchscreen
          */
-        if (devices[loop].type != xi_touchscreen &&
-            has_prop(devices[loop].id, LICALMATR) != 0)
+        if (dev.type != xi_touchscreen &&
+            has_prop(dev.id, LICALMATR) != 0)
                 continue;
 
-        if (found == 0) {
-            /*  check if we already ffound a device */
-            found = -1;
-            break;
-        }
-
-        ret = {devices[loop].id, devices[loop].name};
-        found = 0;
+        ret.push_back(dev);
+        ++count;
     }
 
-    XFreeDeviceList(devices);
-
-    return found;
+    return count;
 }
 
 std::vector<XInputTouch::XDevInfo> XInputTouch::list_devices()

@@ -43,11 +43,18 @@
 
 class XInputTouch {
 public:
+    struct XDevInfo {
+	std::string	name;
+	XID		id;
+	Atom		type;
+	std::string	type_str;
+    };
+
     XInputTouch(Display *display);
 
     ~XInputTouch();
 
-    int find_touch(std::pair<XID,std::string> &ret);
+    int find_touch(std::vector<XDevInfo> &ret);
     int list_props(int dev_id,
                         std::map<std::string, std::vector<std::string>> &ret);
     int set_prop(int devid, const char *name, Atom type, int format,
@@ -62,13 +69,6 @@ public:
                         std::vector<std::string> &ret);
     int has_prop(int devid, const std::string &prop_name);
 
-
-    struct XDevInfo {
-	std::string	name;
-	XID		id;
-	Atom		type;
-	std::string	type_str;
-    };
     std::vector<XDevInfo> list_devices();
 
 private:
