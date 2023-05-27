@@ -248,12 +248,12 @@ int main(int argc, char** argv)
 
     if (matrix_name == "") {
         for (auto i : lprops) {
-            if (i.first == CALMATR1) {
+            if (i.first == LICALMATR) {
                 matrix_name = i.first;
                 break;
-            } else if (i.first == CALMATR2 && matrix_name == "") {
+            } else if (i.first == XICALMATR && matrix_name == "") {
                 matrix_name = i.first;
-                // no break, continue to search CALMATR1 if available
+                // no break, continue to search LICALMATR if available
             }
         }
     } else {

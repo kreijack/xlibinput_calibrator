@@ -36,8 +36,10 @@
 #include <vector>
 #include <utility>
 
-#define CALMATR1 "libinput Calibration Matrix"
-#define CALMATR2 "Coordinate Transformation Matrix"
+/* libinput calibration matrix */
+#define LICALMATR "libinput Calibration Matrix"
+/* XInput calibration matrix */
+#define XICALMATR "Coordinate Transformation Matrix"
 
 class XInputTouch {
 public:

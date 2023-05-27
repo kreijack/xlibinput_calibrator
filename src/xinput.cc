@@ -63,7 +63,7 @@ int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
          * xi_touchscreen
          */
         if (devices[loop].type != xi_touchscreen &&
-            has_prop(devices[loop].id, CALMATR1) != 0)
+            has_prop(devices[loop].id, LICALMATR) != 0)
                 continue;
 
         if (found == 0) {
@@ -442,11 +442,11 @@ int main() {
     fprintf(stderr, "r4=%d\n",r4);
     assert(r4 < 0);
 
-    xi.set_prop(devid, CALMATR1, {
+    xi.set_prop(devid, LICALMATR, {
         "1.0", "1.0", "1.0", "1.0", "0.5", "1.0", "0", "0", "1"
     });
 
-    xi.get_prop(devid, CALMATR1, r1);
+    xi.get_prop(devid, LICALMATR, r1);
     bool first;
     for(const auto &v : r1) {
         if (!first)
