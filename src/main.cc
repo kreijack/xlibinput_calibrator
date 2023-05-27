@@ -60,9 +60,6 @@ void show_help() {
     );
 }
 
-#define CALMATR1 "libinput Calibration Matrix"
-#define CALMATR2 "Coordinate Transformation Matrix"
-
 bool starts_with(std::string_view s1, std::string_view s2)
 {
     if (s1.size() < s2.size())

@@ -54,8 +54,17 @@ int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
 
     for (loop=0; loop<num_devices; loop++) {
 
-        if (devices[loop].type != xi_touchscreen)
+        /* Can't query properties of devices that have no type at all,
+         * so check that first. */
+        if (!devices[loop].type)
             continue;
+        /* Some touchscreens identify as xi_mouse, but still have a
+         * calibration matrix, so check for that as well as just
+         * xi_touchscreen
+         */
+        if (devices[loop].type != xi_touchscreen &&
+            has_prop(devices[loop].id, CALMATR1) != 0)
+                continue;
 
         if (found == 0) {
             /*  check if we already ffound a device */
@@ -281,6 +290,19 @@ XInputTouch::list_props(int dev_id,
     return 0;
 }
 
+int
+XInputTouch::has_prop(int dev_id, const std::string &prop_name)
+{
+    std::map<std::string, std::vector<std::string>> ret;
+
+    auto r = list_props(dev_id, ret);
+
+    if (r < 0)
+        return r;
+
+    return ret.count(prop_name) ? 0 : -1;
+}
+
 int XInputTouch::set_prop(int devid, const char *name, Atom type, int format,
                         const std::vector<std::string> &values)
 {
@@ -420,11 +442,11 @@ int main() {
     fprintf(stderr, "r4=%d\n",r4);
     assert(r4 < 0);
 
-    xi.set_prop(devid, "libinput Calibration Matrix", {
+    xi.set_prop(devid, CALMATR1, {
         "1.0", "1.0", "1.0", "1.0", "0.5", "1.0", "0", "0", "1"
     });
 
-    xi.get_prop(devid, "libinput Calibration Matrix", r1);
+    xi.get_prop(devid, CALMATR1, r1);
     bool first;
     for(const auto &v : r1) {
         if (!first)

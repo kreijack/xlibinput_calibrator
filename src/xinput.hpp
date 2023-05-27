@@ -36,6 +36,9 @@
 #include <vector>
 #include <utility>
 
+#define CALMATR1 "libinput Calibration Matrix"
+#define CALMATR2 "Coordinate Transformation Matrix"
+
 class XInputTouch {
 public:
     XInputTouch(Display *display);
@@ -55,6 +58,7 @@ public:
                         std::vector<std::string> &ret);
     int get_prop(int devid, const char *name,
                         std::vector<std::string> &ret);
+    int has_prop(int devid, const std::string &prop_name);
 
     std::vector<std::pair<int, std::string>> list_devices();
 
