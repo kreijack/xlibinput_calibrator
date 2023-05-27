@@ -62,14 +62,39 @@ public:
                         std::vector<std::string> &ret);
     int has_prop(int devid, const std::string &prop_name);
 
-    std::vector<std::pair<int, std::string>> list_devices();
+
+    struct XDevInfo {
+	std::string	name;
+	XID		id;
+	Atom		type;
+	std::string	type_str;
+    };
+    std::vector<XDevInfo> list_devices();
 
 private:
 
     Atom parse_atom(const char *name);
+    std::string type_to_string(Atom type);
     Display *display;
     Atom xi_touchscreen;
     Atom xi_mouse;
     Atom xi_keyboard;
     Atom float_atom;
+    Atom xi_tablet;
+    Atom xi_touchpad;
+    Atom xi_buttonbox;
+    Atom xi_barcode;
+    Atom xi_trackball;
+    Atom xi_quadrature;
+    Atom xi_id_module;
+    Atom xi_one_knob;
+    Atom xi_nine_knob;
+    Atom xi_knob_box;
+    Atom xi_spaceball;
+    Atom xi_dataglove;
+    Atom xi_eyetracker;
+    Atom xi_cursorkeys;
+    Atom xi_footmouse;
+    Atom xi_joystick;
+
 };

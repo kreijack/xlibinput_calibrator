@@ -85,13 +85,12 @@ unsigned long stou(std::string_view s)
 
 static int list_devices(Display *display) {
     XInputTouch xi(display);
-    const auto devices = xi.list_devices();
 
-    for (auto && it : devices) {
+    for (auto &dev: xi.list_devices()) {
         std::map<std::string, std::vector<std::string>> props;
-        printf("%3d: %s\n", it.first, it.second.c_str());
-
-        xi.list_props(it.first, props);
+        printf("%3llu: %s\n", (unsigned long long)dev.id, dev.name.c_str());
+        printf("\tType: %s\n", dev.type_str.c_str());
+        xi.list_props(dev.id, props);
         for (auto && it2 : props) {
             printf("\t%s: ", it2.first.c_str());
             for (auto i = 0u ; i < it2.second.size() ; i++) {
@@ -218,12 +217,12 @@ int main(int argc, char** argv)
             exit(100);
         }
 
-        for( auto i : res) {
-            if (device_id != (XID)-1 && device_id == (XID)i.first) {
-                device_name = i.second;
+        for( auto &dev: res) {
+            if (device_id != (XID)-1 && device_id == (XID)dev.id) {
+                device_name = dev.name;
                 break;
-            } else if (device_name == i.second) {
-                device_id = i.first;
+            } else if (device_name == dev.name) {
+                device_id = dev.id;
                 break;
             }
         }

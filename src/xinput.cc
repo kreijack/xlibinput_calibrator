@@ -31,12 +31,74 @@
 
 #include "xinput.hpp"
 
+std::string XInputTouch::type_to_string(Atom type) {
+
+        if (type == xi_mouse)
+            return "MOUSE";
+        if (type == xi_tablet)
+            return "TABLET";
+        if (type == xi_keyboard)
+            return "KEYBOARD";
+        if (type == xi_touchscreen)
+            return "TOUCHSCREEN";
+        if (type == xi_touchpad)
+            return "TOUCHPAD";
+        if (type == xi_buttonbox)
+            return "BUTTONBOX";
+        if (type == xi_barcode)
+            return "BARCODE";
+        if (type == xi_trackball)
+            return "TRACKBALL";
+        if (type == xi_quadrature)
+            return "QUADRATURE";
+        if (type == xi_id_module)
+            return "ID_MODULE";
+        if (type == xi_one_knob)
+            return "ONE_KNOB";
+        if (type == xi_nine_knob)
+            return "NINE_KNOB";
+        if (type == xi_knob_box)
+            return "KNOB_BOX";
+        if (type == xi_spaceball)
+            return "SPACEBALL";
+        if (type == xi_dataglove)
+            return "DATAGLOVE";
+        if (type == xi_eyetracker)
+            return "EYETRACKER";
+        if (type == xi_cursorkeys)
+            return "CURSORKEYS";
+        if (type == xi_footmouse)
+            return "FOOTMOUSE";
+        if (type == xi_joystick)
+            return "JOYSTICK";
+
+	static char buf[100];
+	sprintf(buf, "<UNKNOWN:%llu>", (unsigned long long)type);
+	return buf;
+}
+
 XInputTouch::XInputTouch(Display *display_) {
     display = display_;
     xi_touchscreen = XInternAtom(display, XI_TOUCHSCREEN, false);
     xi_mouse = XInternAtom(display, XI_MOUSE, false);
     xi_keyboard = XInternAtom(display, XI_KEYBOARD, false);
     float_atom = XInternAtom(display, "FLOAT", false);
+    xi_tablet = XInternAtom(display, XI_TABLET, false);
+    xi_touchpad = XInternAtom(display, XI_TOUCHPAD, false);
+    xi_buttonbox = XInternAtom(display, XI_BUTTONBOX, false);
+    xi_barcode = XInternAtom(display, XI_BARCODE, false);
+    xi_trackball = XInternAtom(display, XI_TRACKBALL, false);
+    xi_quadrature = XInternAtom(display, XI_QUADRATURE, false);
+    xi_id_module = XInternAtom(display, XI_ID_MODULE, false);
+    xi_one_knob = XInternAtom(display, XI_ONE_KNOB, false);
+    xi_nine_knob = XInternAtom(display, XI_NINE_KNOB, false);
+    xi_knob_box = XInternAtom(display, XI_KNOB_BOX, false);
+    xi_spaceball = XInternAtom(display, XI_SPACEBALL, false);
+    xi_dataglove = XInternAtom(display, XI_DATAGLOVE, false);
+    xi_eyetracker = XInternAtom(display, XI_EYETRACKER, false);
+    xi_cursorkeys = XInternAtom(display, XI_CURSORKEYS, false);
+    xi_footmouse = XInternAtom(display, XI_FOOTMOUSE, false);
+    xi_joystick = XInternAtom(display, XI_JOYSTICK, false);
 }
 
 XInputTouch::~XInputTouch() {
@@ -81,21 +143,24 @@ int XInputTouch::find_touch(std::pair<XID,std::string> &ret)
     return found;
 }
 
-std::vector<std::pair<int, std::string>> XInputTouch::list_devices()
+std::vector<XInputTouch::XDevInfo> XInputTouch::list_devices()
 
 {
     XDeviceInfo	*devices;
     int		loop;
     int		num_devices;
 
-    std::vector<std::pair<int, std::string>> ret;
+    std::vector<XInputTouch::XDevInfo> ret;
 
     devices = XListInputDevices(display, &num_devices);
 
     for (loop=0; loop<num_devices; loop++) {
         if (!devices[loop].type)
             continue;
-        ret.push_back({devices[loop].id, devices[loop].name});
+        ret.push_back({devices[loop].name,
+		devices[loop].id,
+		devices[loop].type,
+		type_to_string(devices[loop].type)});
     }
 
     XFreeDeviceList(devices);
