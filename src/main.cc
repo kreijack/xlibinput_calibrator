@@ -294,7 +294,8 @@ int main(int argc, char** argv)
         printf("show-matrix:                       %s\n", show_matrix ? "yes" : "no");
         printf("show-x11-config:                   %s\n", show_conf_x11 ? "yes" : "no");
         printf("show-libinput-config:              %s\n", show_conf_xinput ? "yes" : "no");
-        printf("not-save:                          %s\n", show_conf_xinput ? "yes" : "no");
+        printf("show-udev-libinput-config:         %s\n", show_conf_udev_libinput ? "yes" : "no");
+        printf("not-save:                          %s\n", not_save ? "yes" : "no");
         printf("matrix-name:                       '%s'\n", matrix_name.c_str());
         printf("output-file-x11-config:            '%s'\n", output_file_x11.c_str());
         printf("output-file-xinput-config:         '%s'\n", output_file_xinput.c_str());
