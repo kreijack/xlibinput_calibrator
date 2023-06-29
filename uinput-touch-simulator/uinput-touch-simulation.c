@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 const char *uinput_deivce_path = "/dev/uinput";
 
@@ -15,7 +16,7 @@ void gets(char *buf) {
         fgets(buf, 10, stdin);
 }
 
-int open_uinput_device(){
+int open_uinput_device(bool act_as_mouse){
     struct uinput_user_dev ui_dev;
     int uinp_fd = open(uinput_deivce_path, O_WRONLY | O_NDELAY);
     if (uinp_fd <= 0) {
@@ -47,7 +48,10 @@ int open_uinput_device(){
     ioctl(uinp_fd, UI_SET_EVBIT, EV_SYN);
     ioctl(uinp_fd, UI_SET_EVBIT, EV_KEY);
 
-    ioctl(uinp_fd, UI_SET_KEYBIT, BTN_TOUCH);
+    if (act_as_mouse)
+        ioctl(uinp_fd, UI_SET_KEYBIT, BTN_MOUSE);
+    else
+        ioctl(uinp_fd, UI_SET_KEYBIT, BTN_TOUCH);
 
     write(uinp_fd, &ui_dev, sizeof(ui_dev));
     if (ioctl(uinp_fd, UI_DEV_CREATE)) {
@@ -86,8 +90,9 @@ void move_and_press(int fd, int x, int y) {
 }
 
 void usage(const char *prgname) {
-    fprintf(stderr, "usage %s [--help|-h|<points>]\n"
+    fprintf(stderr, "usage %s [--help|-h][--mouse][<points>]\n"
         "--help|-h     show this help\n"
+        "--mouse       act as 'calibratable' mouse\n"
         "<points>      chars sequence in the range '0'..'3' where\n"
         "              each char is a point in the screen as the table below\n"
         "\n"
@@ -111,18 +116,23 @@ void usage(const char *prgname) {
 int main(int argc, char *argv[]) {
     char buf[] = "0123", *p;
     int fd;
+    int i;
+    bool act_as_mouse = false;
 
-    if (argc > 1 && (!strcmp("--help", argv[1]) || !strcmp("-h", argv[1]))) {
-        usage(argv[0]);
-        return 0;
+    for (i = 1 ; i < argc ; i++) {
+        if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) {
+            usage(argv[0]);
+            return 0;
+        } else if (!strcmp(argv[i], "--mouse")) {
+            act_as_mouse = true;
+        } else {
+            strncpy(buf, argv[i], 4);
+        }
     }
 
-    fd = open_uinput_device();
+    fd = open_uinput_device(act_as_mouse);
     assert(fd >= 0);
     printf("Device opened\n");
-
-    if (argc >1)
-        strcpy(buf, argv[1]);
 
     for(;;) {
         char buf1[100];
