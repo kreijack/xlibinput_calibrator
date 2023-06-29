@@ -132,7 +132,7 @@ int XInputTouch::find_touch(std::vector<XInputTouch::XDevInfo> &ret) {
         if (!dev.type)
             continue;
 
-        if (has_prop(dev.id, LICALMATR) != 1)
+        if (has_prop(dev.id, LICALMATR) != 0)
                 continue;
 
         ret.push_back(dev);
