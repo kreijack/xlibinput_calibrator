@@ -109,16 +109,30 @@ int XInputTouch::find_touch(std::vector<XInputTouch::XDevInfo> &ret) {
 
     for (auto  &dev: list_devices()) {
 
+        if (dev.type != xi_touchscreen)
+                continue;
+
+        ret.push_back(dev);
+        ++count;
+    }
+
+    if (count)
+        return count;
+
+    /*
+     * Some touchscreens identify as xi_mouse, but still have a
+     * calibration matrix, so check for that as well if no
+     * xi_touchscreen was found
+     */
+
+    for (auto  &dev: list_devices()) {
+
         /* Can't query properties of devices that have no type at all,
          * so check that first. */
         if (!dev.type)
             continue;
-        /* Some touchscreens identify as xi_mouse, but still have a
-         * calibration matrix, so check for that as well as just
-         * xi_touchscreen
-         */
-        if (dev.type != xi_touchscreen &&
-            has_prop(dev.id, LICALMATR) != 0)
+
+        if (has_prop(dev.id, LICALMATR) != 1)
                 continue;
 
         ret.push_back(dev);
@@ -350,7 +364,7 @@ XInputTouch::has_prop(int dev_id, const std::string &prop_name)
     if (r < 0)
         return r;
 
-    return ret.count(prop_name) ? 0 : -1;
+    return ret.count(prop_name) ? 0 : 1;
 }
 
 int XInputTouch::set_prop(int devid, const char *name, Atom type, int format,
