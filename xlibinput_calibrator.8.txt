@@ -22,6 +22,19 @@ DESCRIPTION
    - create a new configuration file for X11
    - show the xinput command option to set the new matrix calibration
    - show the udev script to set the new matrix calibration
+
+DEFAULT TOUCH
+  xlibinout_calibrator(8) tries to find a suitable device to calibrate on the
+  basis of the following logic:
+  - if exists ONLY ONE touch, calibrate it
+  - else if exists MORE THAN ONE touch, raise an error
+  - else if exists ONLY ONE device with a "libinput Calibration Matrix" property
+    calibrate it
+  - else raise an error
+
+  If you have more than one device that may be elegible as calibration, use
+  the option --device-name=<devname>|--device-id=<device-id>.
+
 OPTIONS
   --device-name=<devname>|--device-id=<device-id>
 
