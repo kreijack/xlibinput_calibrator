@@ -1,6 +1,6 @@
 prefix = /usr/
 
-all: build
+all: build man
 
 build: src/xlibinput_calibrator
 

@@ -37,7 +37,16 @@ you can save the setting in a file (*--output-file-x11-config=*).
 * Show the xinput command for the new configuration matrix (*--show-xinput-cmd*); optionally
 you can save the command in a file (*--output-file-xinput-cmd=*).
 
-**xlibinput_calibrator** selects automatically the device to operate. If for some reason this is not possible (avaliability of multiple devices), it is possible to select explicitly the device with *--device-id=* or *--device-name=* options (the former takes precedence).
+**xlibinput_calibrator** selects automatically the device to operate on the
+basis of the following logic:
+* if exists ONLY ONE touch, calibrate it
+* else if exists MORE THAN ONE touch, raise an error
+* else if exists ONLY ONE device with a "libinput Calibration Matrix" property
+  calibrate it
+* else raise an error
+
+If you have more than one device that may be elegible as calibration, use
+the option *--device-name=devname* or *--device-id=*device-id*.
 
 *--threshold-misclick=* set the threshold for accept or reject a click. The four clicks have to be the angles of a rectagle. The value passed are the maximum  allowable distance between the click and the ideal point. If the value is 0 (default), the check is not performed.
 
