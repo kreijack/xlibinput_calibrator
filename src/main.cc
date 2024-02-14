@@ -28,6 +28,7 @@
 #include "gui_x11.hpp"
 #include "calibrator.hpp"
 #include "xinput.hpp"
+#include "display_data.hpp"
 
 extern const char *gitversion;
 
@@ -306,12 +307,47 @@ int main(int argc, char** argv)
     }
 
 
-    GuiCalibratorX11 gui(display, monitor_nr);
+    GuiCalibratorX11 gui(display, monitor_nr, verbose);
     Calibrator  calib(display, device_name, device_id, thr_misclick, thr_doubleclick,
                         matrix_name, verbose);
 
+    auto dd = gui.get_display_data();
+
+    if(verbose) {
+	    printf("Calibrating for monitor size %d, %d at %d, %d on overall display of %d, %d\n",dd.monitor_width,dd.monitor_height,dd.monitor_x,dd.monitor_y, dd.overall_width, dd.overall_height);
+    }
+
+    Mat9 prescale;
+    mat9_set_identity(prescale);
     if (start_coeff.size() == 0) {
-        calib.set_identity();
+        /* When multiple monitors are attached X translates the incoming clicks
+         * to cover the whole display area across all monitors. This causes real
+         * problems if the overall display isn't rectangular, such as when 2
+         * monitors are different resolutions. In this case X11 won't generate a click
+         * off the monitors, instead moving it to the nearest pixel (in the X direction?)
+         * which is on a monitor. This means that if you have a 1024x768 monitor to the
+         * left of a 1920x1080 monitor, all clicks in the bottom-left corner will
+         * actually come in as clicks with an X co-ordinate of 1024 (the start of the
+         * taller 1920x1080 monitor).
+         *
+         * To prevent this problem, we must first translate and scale the whole
+         * co-ordinate space of the overall display width/height, into the co-ordinate
+         * space of the monitor we're drawing our window on, that way all clicks will
+         * be scaled to values X11 will actually return to our program.
+         */
+        if(!dd.monitor_is_overall()) {
+            prescale[0] = (float)dd.monitor_width/dd.overall_width;
+            prescale[4] = (float)dd.monitor_height/dd.overall_height;
+            prescale[2] = (float)dd.monitor_x/dd.overall_width;
+            prescale[5] = (float)dd.monitor_y/dd.overall_height;
+
+            if(verbose) {
+                printf("Prescaled for multi-monitors: %f,%f,%f,%f\n",prescale[0],prescale[4],prescale[2],prescale[5]);
+            }
+            calib.set_calibration(prescale);
+        } else {
+            calib.set_identity();
+        }
     } else {
         Mat9 coeff;
         auto nr = sscanf(start_coeff.c_str(), "%f,%f,%f,%f,%f,%f,%f,%f,%f",
@@ -350,9 +386,8 @@ int main(int argc, char** argv)
         }
     }
 
-    auto [w, h] = gui.get_display_size();
 
-    calib.finish(w, h);
+    calib.finish(dd, prescale);
 
     if (show_matrix) {
         auto coeff = calib.get_coeff();

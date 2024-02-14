@@ -75,6 +75,7 @@ void emit(int uinp_fd, int type, int code, int value) {
 }
 
 void move_and_press(int fd, int x, int y) {
+    printf("Moving to %d,%d\n",x,y);
     emit(fd, EV_ABS, ABS_X, x);
     emit(fd, EV_ABS, ABS_Y, y);
     emit(fd, EV_SYN, SYN_REPORT, 0);
@@ -93,6 +94,7 @@ void usage(const char *prgname) {
     fprintf(stderr, "usage %s [--help|-h][--mouse][<points>]\n"
         "--help|-h     show this help\n"
         "--mouse       act as 'calibratable' mouse\n"
+        "--extreme     point at extremities, not 1/8th in\n"
         "<points>      chars sequence in the range '0'..'3' where\n"
         "              each char is a point in the screen as the table below\n"
         "\n"
@@ -118,6 +120,7 @@ int main(int argc, char *argv[]) {
     int fd;
     int i;
     bool act_as_mouse = false;
+    bool extremes = false;
 
     for (i = 1 ; i < argc ; i++) {
         if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) {
@@ -125,6 +128,8 @@ int main(int argc, char *argv[]) {
             return 0;
         } else if (!strcmp(argv[i], "--mouse")) {
             act_as_mouse = true;
+        } else if(!strcmp(argv[i], "--extreme")) {
+            extremes = true;
         } else {
             strncpy(buf, argv[i], 4);
         }
@@ -133,6 +138,15 @@ int main(int argc, char *argv[]) {
     fd = open_uinput_device(act_as_mouse);
     assert(fd >= 0);
     printf("Device opened\n");
+
+    int yu,yb,xl,xr;
+    if(extremes) {
+        yu = xl = 0;
+        yb = xr = 1023;
+    } else {
+        yu = xl = 1024*1/8;
+        yb = xr = 1024*7/8;
+    }
 
     for(;;) {
         char buf1[100];
@@ -154,19 +168,19 @@ int main(int argc, char *argv[]) {
             switch (*p) {
                 case '0':
                     printf("upper left\n");
-                    move_and_press(fd, 1024*1/8, 1024*1/8);   /* upper left */
+                    move_and_press(fd, xl, yu);   /* upper left */
                     break;
                 case '1':
                     printf("upper right\n");
-                    move_and_press(fd, 1024*7/8, 1024*1/8);   /* upper right */
+                    move_and_press(fd, xr, yu);   /* upper right */
                     break;
                 case '2':
                     printf("bottom left\n");
-                    move_and_press(fd, 1024*1/8, 1024*7/8);   /* bottom left */
+                    move_and_press(fd, xl, yb);   /* bottom left */
                     break;
                 case '3':
                     printf("bottom right\n");
-                    move_and_press(fd, 1024*7/8, 1024*7/8);   /* bottom right */
+                    move_and_press(fd, xr, yb);   /* bottom right */
                     break;
                 default:
                     printf("Unknown command '%c'\n", *p);

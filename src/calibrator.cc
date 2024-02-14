@@ -110,7 +110,7 @@ void Calibrator::set_identity()
     setMatrix(matrix_name, coeff);
 }
 
-bool Calibrator::finish(int width, int height)
+bool Calibrator::finish(const DisplayData &dd, const Mat9 &prescale)
 {
 
     if (verbose) {
@@ -122,6 +122,23 @@ bool Calibrator::finish(int width, int height)
     if (get_numclicks() != NUM_POINTS) {
         return false;
     }
+
+    /* Scale up click data to compensate for any scale down to monitor size already
+     * applied
+     */
+
+    const float prescale_x = prescale[0];
+    const float prescale_y = prescale[4];
+    std::vector<float> prescaled_x, prescaled_y;
+    for(const auto click : clicked_x)
+        prescaled_x.push_back(click/prescale_x);
+
+    for(const auto click : clicked_y)
+        prescaled_y.push_back(click/prescale_y);
+
+
+    const float x_offset = prescale[2]*dd.overall_width;
+    const float y_offset = prescale[5]*dd.overall_height;
 
     /*
      * Assuming that
@@ -155,14 +172,14 @@ bool Calibrator::finish(int width, int height)
 
     Mat9 coeff_tmp, tmi, tm, ts, coeff;
 
-    const float xl = width /  (float)num_blocks;
-    const float xr = width /  (float)num_blocks * (num_blocks - 1);
-    const float yu = height / (float)num_blocks;
-    const float yl = height / (float)num_blocks * (num_blocks - 1);
+    const float xl = x_offset + dd.monitor_width /  (float)num_blocks;
+    const float xr = x_offset + dd.monitor_width /  (float)num_blocks * (num_blocks - 1);
+    const float yu = y_offset + dd.monitor_height / (float)num_blocks;
+    const float yl = y_offset + dd.monitor_height / (float)num_blocks * (num_blocks - 1);
 
     /* skip LR */
-    tm.set(clicked_x[UL],   clicked_x[UR],  clicked_x[LL],
-           clicked_y[UL],   clicked_y[UR],  clicked_y[LL],
+    tm.set(prescaled_x[UL],   prescaled_x[UR],  prescaled_x[LL],
+           prescaled_y[UL],   prescaled_y[UR],  prescaled_y[LL],
            1,               1,              1);
     ts.set(xl,              xr,             xl,
            yu,              yu,             yl,
@@ -172,8 +189,8 @@ bool Calibrator::finish(int width, int height)
     mat9_product(ts, tmi, coeff);
 
     /* skip UL */
-    tm.set(clicked_x[LR],   clicked_x[UR],  clicked_x[LL],
-           clicked_y[LR],   clicked_y[UR],  clicked_y[LL],
+    tm.set(prescaled_x[LR],   prescaled_x[UR],  prescaled_x[LL],
+           prescaled_y[LR],   prescaled_y[UR],  prescaled_y[LL],
            1,               1,              1);
     ts.set(xr,              xr,             xl,
            yl,              yu,             yl,
@@ -184,8 +201,8 @@ bool Calibrator::finish(int width, int height)
     mat9_sum(coeff_tmp, coeff);
 
     /* skip UR */
-    tm.set(clicked_x[LR],   clicked_x[UL],  clicked_x[LL],
-           clicked_y[LR],   clicked_y[UL],  clicked_y[LL],
+    tm.set(prescaled_x[LR],   prescaled_x[UL],  prescaled_x[LL],
+           prescaled_y[LR],   prescaled_y[UL],  prescaled_y[LL],
            1,               1,              1);
     ts.set(xr,              xl,             xl,
            yl,              yu,             yl,
@@ -196,8 +213,8 @@ bool Calibrator::finish(int width, int height)
     mat9_sum(coeff_tmp, coeff);
 
     /* skip LL */
-    tm.set(clicked_x[LR],   clicked_x[UL],  clicked_x[UR],
-           clicked_y[LR],   clicked_y[UL],  clicked_y[UR],
+    tm.set(prescaled_x[LR],   prescaled_x[UL],  prescaled_x[UR],
+           prescaled_y[LR],   prescaled_y[UL],  prescaled_y[UR],
            1,               1,              1);
     ts.set(xr,              xl,             xr,
            yl,              yu,             yu,
@@ -211,6 +228,11 @@ bool Calibrator::finish(int width, int height)
      * the final matrix is the average of the previous computed ones
      */
     mat9_product(1.0/4.0, coeff);
+
+    if (verbose) {
+        printf("Unscaled calibration matrix:\n");
+        mat9_print(coeff);
+    }
 
     /*
      *             Coefficient normalization
@@ -288,11 +310,11 @@ bool Calibrator::finish(int width, int height)
      *              ⎣ 0       0                  1            ⎦
      */
 
-    coeff[1] *= (float)height/width;
-    coeff[2] *= 1.0/width;
+    coeff[1] *= (float)dd.overall_height/dd.overall_width;
+    coeff[2] *= 1.0/dd.overall_width;
 
-    coeff[3] *= (float)width/height;
-    coeff[5] *= 1.0/height;
+    coeff[3] *= (float)dd.overall_width/dd.overall_height;
+    coeff[5] *= 1.0/dd.overall_height;
 
     /*
      * Sometimes, the last row values are like -0.0, -0.0, 1
@@ -301,6 +323,10 @@ bool Calibrator::finish(int width, int height)
     coeff[6] = 0.0;
     coeff[7] = 0.0;
     coeff[8] = 1.0;
+    if (verbose) {
+        printf("Scaled to range range 0-1:\n");
+        mat9_print(coeff);
+    }
 
     result_coeff = coeff;
 

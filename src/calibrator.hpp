@@ -31,6 +31,7 @@
 
 #include "xinput.hpp"
 #include "mat9.hpp"
+#include "display_data.hpp"
 
 class WrongCalibratorException : public std::invalid_argument {
     public:
@@ -62,7 +63,7 @@ public:
     ~Calibrator();
 
     /// calculate and apply the calibration
-    bool finish(int width, int height);
+    bool finish(const DisplayData & dd, const Mat9 & prescale);
 
 
     bool set_calibration(const Mat9 &coeff);

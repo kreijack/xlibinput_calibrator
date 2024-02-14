@@ -28,6 +28,8 @@
 #include <functional>
 #include <utility>
 
+#include "display_data.hpp"
+
 enum { BLACK=0, WHITE=1, GRAY=2, DIMGRAY=3, RED=4 };
 inline const int nr_colors = 5;
 /*
@@ -65,12 +67,13 @@ class GuiCalibratorX11
 public:
     ~GuiCalibratorX11();
     bool mainloop();
-    GuiCalibratorX11(Display *display, int monitor_nr = 1);
+    GuiCalibratorX11(Display *display, int monitor_nr = 1, bool verbose = false);
 
 private:
     // Data
     double X[4], Y[4];
     int window_x, window_y, window_width, window_height;
+    DisplayData dd;
     int time_elapsed;
     int points_count;
     bool return_value;
@@ -80,6 +83,7 @@ private:
 
     // X11 vars
     Display* display;
+    bool verbose;
     int screen_num;
     Window win;
     GC gc;
@@ -103,6 +107,7 @@ private:
     std::function<void(void)> reset_ext = [](){ };
 
     void get_monitor_size(int &x, int &y, int &w, int &h, int monitor_num = 0);
+    void detect_display_size(int &w, int &h);
 
 public:
     void set_add_click(std::function<bool(int, int)> f) {
@@ -112,6 +117,7 @@ public:
         reset_ext = f;
     }
 
-    std::pair<int, int> get_display_size() { return {window_width,
-                                                        window_height}; }
+    DisplayData get_display_data() {
+	    return dd;
+    }
 };

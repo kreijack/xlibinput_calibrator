@@ -76,8 +76,8 @@ static const std::string help_text[help_lines] = {
 
 static const char* colors[nr_colors] = {"BLACK", "WHITE", "GRAY", "DIMGRAY", "RED"};
 
-GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr)
-  : time_elapsed(0), points_count(0), monitor_nr(mnr), display(display_)
+GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr, bool verbose_)
+  : time_elapsed(0), points_count(0), monitor_nr(mnr), display(display_), verbose(verbose_)
 {
     screen_num = DefaultScreen(display);
     // Load font and get font information structure
@@ -90,11 +90,14 @@ GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr)
         }
     }
 
-    int x, y, w, h;
-    get_monitor_size(x, y, w, h, monitor_nr);
-    set_window_size(x, y, w, h);
+    get_monitor_size(dd.monitor_x, dd.monitor_y, dd.monitor_width, dd.monitor_height, monitor_nr);
+    set_window_size(dd.monitor_x, dd.monitor_y, dd.monitor_width, dd.monitor_height);
+    detect_display_size(dd.overall_width, dd.overall_height);
 
-    //printf("window: %d,%x x %d,%d\n", window_x, window_y, window_width, window_height);
+    if (verbose) {
+        printf("whole display: %d,%d\n",dd.overall_width, dd.overall_height);
+        printf("monitor/window: %d,%d x %d,%d\n", dd.monitor_x, dd.monitor_y, dd.monitor_width, dd.monitor_height);
+    }
     // Register events on the window
     XSetWindowAttributes attributes;
     attributes.override_redirect = True;
@@ -126,6 +129,12 @@ GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr)
     gc = XCreateGC(display, win, 0, NULL);
     XSetFont(display, gc, font_info->fid);
 
+}
+
+void  GuiCalibratorX11::detect_display_size( int &width, int &height) {
+
+    width = DisplayWidth(display, screen_num);
+    height = DisplayHeight(display, screen_num);
 }
 
 void GuiCalibratorX11::get_monitor_size(int &x, int &y, int &w, int &h,
