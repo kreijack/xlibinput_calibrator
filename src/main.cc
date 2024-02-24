@@ -147,6 +147,7 @@ int main(int argc, char** argv)
     std::string DisplayName = "";
     Display *display;
     bool start_list_devices = false;
+    bool prescale_applied = false;
 
     if (getenv("DISPLAY"))
         DisplayName = getenv("DISPLAY");
@@ -310,8 +311,47 @@ int main(int argc, char** argv)
     Calibrator  calib(display, device_name, device_id, thr_misclick, thr_doubleclick,
                         matrix_name, verbose);
 
+    int monitor_x, monitor_y, monitor_width, monitor_height;
+    int overall_width, overall_height;
+    gui.get_overall_display_size(overall_width, overall_height);
+    gui.get_monitor_size(monitor_x, monitor_y,
+                         monitor_width, monitor_height, monitor_nr);
+
+    if(verbose) {
+	    printf("Calibrating for monitor size %d, %d at %d, %d on overall display of %d, %d\n",
+                monitor_width, monitor_height, monitor_x, monitor_y, overall_width, overall_height);
+    }
+
     if (start_coeff.size() == 0) {
-        calib.set_identity();
+        /* When multiple monitors are attached X translates the incoming clicks
+         * to cover the whole display area across all monitors. This causes real
+         * problems if the overall display isn't rectangular, such as when 2
+         * monitors are different resolutions. In this case X11 won't generate a click
+         * off the monitors, instead moving it to the nearest pixel (in the X direction?)
+         * which is on a monitor. This means that if you have a 1024x768 monitor to the
+         * left of a 1920x1080 monitor, all clicks in the bottom-left corner will
+         * actually come in as clicks with an X co-ordinate of 1024 (the start of the
+         * taller 1920x1080 monitor).
+         *
+         * To prevent this problem, we must first translate and scale the whole
+         * co-ordinate space of the overall display width/height, into the co-ordinate
+         * space of the monitor we're drawing our window on, that way all clicks will
+         * be scaled to values X11 will actually return to our program.
+         */
+        Mat9 prescale;
+        mat9_set_identity(prescale);
+
+        prescale.set((float)monitor_width/overall_width, 0, (float)monitor_x/overall_width,
+                     0, (float)monitor_height/overall_height, (float)monitor_y/overall_height,
+                     0, 0, 1);
+
+        if(verbose) {
+            printf("Prescaled for multi-monitors: %f,%f,%f,%f\n",prescale[0],prescale[4],prescale[2],prescale[5]);
+        }
+
+        calib.set_calibration(prescale);
+        prescale_applied = true;
+
     } else {
         Mat9 coeff;
         auto nr = sscanf(start_coeff.c_str(), "%f,%f,%f,%f,%f,%f,%f,%f,%f",
@@ -326,9 +366,16 @@ int main(int argc, char** argv)
         }
     }
 
-
     gui.set_add_click([&](int x, int y) -> bool{
-        return calib.add_click(x, y);
+        float x1, y1;
+        if (prescale_applied) {
+            x1 = (float)x/monitor_width * overall_width - monitor_x;
+            y1 = (float)y/monitor_height * overall_height - monitor_y;
+        } else {
+            x1 = x;
+            y1 = y;
+        }
+        return calib.add_click(x1, y1);
     });
     gui.set_reset([&](){
         return calib.reset();
@@ -350,9 +397,7 @@ int main(int argc, char** argv)
         }
     }
 
-    auto [w, h] = gui.get_display_size();
-
-    calib.finish(w, h);
+    calib.finish(monitor_width, monitor_height);
 
     if (show_matrix) {
         auto coeff = calib.get_coeff();

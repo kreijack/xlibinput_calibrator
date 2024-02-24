@@ -102,8 +102,6 @@ private:
     std::function<bool(int, int)> add_click_ext = [](int x, int y){ return true; };
     std::function<void(void)> reset_ext = [](){ };
 
-    void get_monitor_size(int &x, int &y, int &w, int &h, int monitor_num = 0);
-
 public:
     void set_add_click(std::function<bool(int, int)> f) {
         add_click_ext = f;
@@ -112,6 +110,6 @@ public:
         reset_ext = f;
     }
 
-    std::pair<int, int> get_display_size() { return {window_width,
-                                                        window_height}; }
+    void get_overall_display_size( int &width, int &height);
+    void get_monitor_size(int &x, int &y, int &w, int &h, int monitor_num = 0);
 };

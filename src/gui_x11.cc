@@ -125,6 +125,11 @@ GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr)
 
 }
 
+void  GuiCalibratorX11::get_overall_display_size( int &width, int &height) {
+    width = DisplayWidth(display, screen_num);
+    height = DisplayHeight(display, screen_num);
+}
+
 void GuiCalibratorX11::get_monitor_size(int &x, int &y, int &w, int &h,
                                         int monitor_num) {
 
