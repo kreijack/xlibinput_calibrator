@@ -1,12 +1,8 @@
 CXXFLAGS=-Wall -pedantic -std=c++17
 SRCS=main.cc gui_x11.cc version.cc xinput.cc mat9.cc calibrator.cc
 OBJECTS= $(SRCS:.cc=.o)
-LIBS=-lX11 -lXi
+LIBS=-lX11 -lXi -lXrandr
 LDFLAGS=-std=c++17
-
-# uncomment the lines below if you want to use xrandr extension set
-CXXFLAGS+= -DHAVE_X11_XRANDR
-LIBS+= -lXrandr
 
 all: xlibinput_calibrator
 

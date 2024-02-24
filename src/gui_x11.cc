@@ -26,10 +26,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h> // strncpy, strlen
 
-#ifdef HAVE_X11_XRANDR
-// support for multi-head setups
 #include <X11/extensions/Xrandr.h>
-#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -131,15 +128,6 @@ GuiCalibratorX11::GuiCalibratorX11(Display *display_, int mnr)
 void GuiCalibratorX11::get_monitor_size(int &x, int &y, int &w, int &h,
                                         int monitor_num) {
 
-#ifndef HAVE_X11_XRANDR
-
-    x = y = 0;
-    w = DisplayWidth(display, screen_num);
-    h = DisplayHeight(display, screen_num);
-    return;
-
-#else
-
     int n;
     auto root = RootWindow (display, screen_num);
     auto monitors = XRRGetMonitors(display, root, false, &n);
@@ -172,7 +160,7 @@ void GuiCalibratorX11::get_monitor_size(int &x, int &y, int &w, int &h,
     }
 
     XRRFreeMonitors(monitors);
-#endif
+
 }
 
 GuiCalibratorX11::~GuiCalibratorX11()
