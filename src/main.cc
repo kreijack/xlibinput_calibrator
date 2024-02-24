@@ -48,7 +48,7 @@ void show_help() {
         "    --show-matrix                 show the final matrix\n"
         "    --verbose                     set verbose to on\n"
         "    --dont-save                   don't update X11 setting\n"
-        "    --matrix=x1,x2..x9            start coefficent matrix\n"
+        "    --start-matrix=x1,x2..x9      start coefficient matrix\n"
         "    --display=<display>           set the X11 display\n"
         "    --monitor-number=<n>          show the output on the monitor '<n>'\n"
         "\n"

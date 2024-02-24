@@ -4,7 +4,7 @@ SYNOPSIS
   xlibinput_calibrator [--output-file-x11-config=<filename>] [--dont-save]
                        [--output-file-xinput-cmd=<filename>] [--verbose]
                        [--output-file-udev-libinput-cmd=<filename>]
-                       [--threshold-misclick=<nn>] [--matrix=_x1,x2..x9_]
+                       [--threshold-misclick=<nn>] [--start-matrix=_x1,x2..x9_]
                        [--threshold-doubleclick=<nn>] [--show-matrix]
                        [--device-name=<devname>|-device-id=<device-id>]
                        [--show-x11-config] [--show-xinput-cmd]
@@ -54,7 +54,7 @@ OPTIONS
   --matrix-name=<matrix-name>  Set the name of the matrix used for the
       calibration.
 
-  --matrix=<x1,x2..x9>  Sets the intial matrix before doing the calibration.
+  --start-matrix=<x1,x2..x9>  Sets the intial matrix before doing the calibration.
       By default xlibinput_calibrator(8) sets the calibration matrix to the
       identity (i.e. all 1 in the diagonal). With this option it is possible
       to set another matrix. Note that if something goes wrong or the
