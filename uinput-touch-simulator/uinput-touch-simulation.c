@@ -10,6 +10,28 @@
 #include <string.h>
 #include <stdbool.h>
 
+struct Point {
+    const char *name;
+    int x;
+    int y;
+};
+
+const int points_count = 4;
+
+const struct Point points[] = {
+    { "upper left",   1024 * 1/8, 1024 * 1/8 },
+    { "upper right",  1024 * 7/8, 1024 * 1/8 },
+    { "bottom left",  1024 * 1/8, 1024 * 7/8 },
+    { "bottom right", 1024 * 7/8, 1024 * 7/8 }
+};
+
+const struct Point extreme_points[] = {
+    { "upper left",   1024 * 0/8, 1024 * 0/8 },
+    { "upper right",  1024 * 8/8, 1024 * 0/8 },
+    { "bottom left",  1024 * 0/8, 1024 * 8/8 },
+    { "bottom right", 1024 * 8/8, 1024 * 8/8 }
+};
+
 const char *uinput_deivce_path = "/dev/uinput";
 
 void gets(char *buf) {
@@ -85,14 +107,39 @@ void move_and_press(int fd, int x, int y) {
     emit(fd, EV_KEY, BTN_TOUCH, 0);
     emit(fd, EV_SYN, SYN_REPORT, 0);
     usleep(1000*100);
-
-
 }
 
+void move_to_corner(int fd, int x1, int y1) {
+
+    float x = 512, y = 512;
+    const int nstep = 100;
+    float dx = (float)(x1 - x) / nstep;
+    float dy = (float)(y1 - y) / nstep;
+    int i;
+
+
+    for (i = 0 ; i < nstep ; i++) {
+        emit(fd, EV_ABS, ABS_X, x);
+        emit(fd, EV_ABS, ABS_Y, y);
+        emit(fd, EV_KEY, BTN_TOUCH, 0);
+        emit(fd, EV_SYN, SYN_REPORT, 0);
+
+        usleep(1000*30);
+
+        x += dx;
+        y += dy;
+    }
+
+    usleep(1000*1000);
+}
+
+
 void usage(const char *prgname) {
-    fprintf(stderr, "usage %s [--help|-h][--mouse][<points>]\n"
+    fprintf(stderr, "usage %s [--help|-h][--mouse][--move][--extreme][<points>]\n"
         "--help|-h     show this help\n"
         "--mouse       act as 'calibratable' mouse\n"
+        "--move        move the pointer instead of emitting clicks\n"
+        "--extreme     the points are the elimit of the screen(s)\n"
         "<points>      chars sequence in the range '0'..'3' where\n"
         "              each char is a point in the screen as the table below\n"
         "\n"
@@ -106,18 +153,95 @@ void usage(const char *prgname) {
         "When the program is started, it creates a virtual touch screen\n"
         "called 'VirtualTouch'. Then it ask a <points> set; if no <points>\n"
         "set is passed, the default one ('0123') or the one passed via\n"
-        "the command line is used. Then it waits 3 seconds (so the user can\n"
+        "the command line is used.\n"
+        "\n"
+        "By default it waits 3 seconds (so the user can\n"
         "starts xinput_calibrator. After that the program 'emits' the\n"
         "touches following the <points> set .\n"
+        "\n"
+        "If '--move' is passed, instead of emitting a click, the mouse is\n"
+        "moved from the center to the points\n"
         "\n",
         prgname);
 }
 
+void move_to_corners(int fd, const char *buf, const struct Point *points) {
+    char *p;
+    for(;;) {
+        char buf1[100];
+        int r;
+
+        printf("Insert pattern (default '%s') >", buf);
+        assert(fgets(buf1, sizeof(buf1) - 1, stdin));
+        r = strlen(buf1);
+        assert(r > 0);
+
+        if (r > 1) {
+            buf1[r-1] = 0;
+        } else  {
+            strncpy(buf1, buf, sizeof(buf1) - 1);
+        }
+        p = buf1;
+
+        while (*p) {
+            if ( *p >= '0' && *p < '0' + points_count) {
+                printf("Move to %s\n", points[*p - '0'].name);
+                move_to_corner(fd, points[*p - '0'].x, points[*p - '0'].y);
+            } else {
+                printf("Unknown command '%c'\n", *p);
+                break;
+            }
+            ++p;
+        }
+        printf("Move done.\n");
+    }
+}
+
+void do_clicks(int fd, const char *buf, const struct Point *points) {
+    char *p;
+
+    for(;;) {
+        char buf1[100];
+        int r;
+
+        printf("Insert pattern (default '%s') >", buf);
+        assert(fgets(buf1, sizeof(buf1) - 1, stdin));
+        r = strlen(buf1);
+        assert(r > 0);
+
+        if (r > 1) {
+            buf1[r-1] = 0;
+        } else  {
+            strncpy(buf1, buf, sizeof(buf1) - 1);
+        }
+        p = buf1;
+
+        printf("sleep 3s\n"); sleep(3);
+        while (*p) {
+            if ( *p >= '0' && *p < '0' + points_count) {
+                printf("Click to %s\n", points[*p - '0'].name);
+                move_and_press(fd, points[*p - '0'].x, points[*p - '0'].y);
+            } else {
+                printf("Unknown command '%c'\n", *p);
+                break;
+            }
+            ++p;
+        }
+        printf("Clicks emitted.\n");
+    }
+}
+
 int main(int argc, char *argv[]) {
-    char buf[] = "0123", *p;
     int fd;
     int i;
     bool act_as_mouse = false;
+    enum {
+        MODE_CLICK,
+        MODE_MOVE
+    } mode = MODE_CLICK;
+    const struct Point *p = points;
+    char default_points[] = "0123";
+    char *points_arg = default_points;
 
     for (i = 1 ; i < argc ; i++) {
         if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) {
@@ -125,8 +249,13 @@ int main(int argc, char *argv[]) {
             return 0;
         } else if (!strcmp(argv[i], "--mouse")) {
             act_as_mouse = true;
+        } else if (!strcmp(argv[i], "--move")) {
+            mode = MODE_MOVE;
+            act_as_mouse = true; // otherwise the mouse is not visible
+        } else if (!strcmp(argv[i], "--extreme")) {
+            p = extreme_points;
         } else {
-            strncpy(buf, argv[i], 4);
+            points_arg = argv[i];
         }
     }
 
@@ -134,52 +263,11 @@ int main(int argc, char *argv[]) {
     assert(fd >= 0);
     printf("Device opened\n");
 
-    for(;;) {
-        char buf1[100];
-        int r;
-
-        printf("Insert pattern (default '%s') >", buf);
-        assert(fgets(buf1, 99, stdin));
-        r = strlen(buf1);
-        assert(r > 0);
-
-        if (r > 1) {
-            buf1[r-1] = 0;
-            strcpy(buf, buf1);
-        }
-        p = buf;
-
-        printf("sleep 3s\n"); sleep(3);
-        while (*p) {
-            switch (*p) {
-                case '0':
-                    printf("upper left\n");
-                    move_and_press(fd, 1024*1/8, 1024*1/8);   /* upper left */
-                    break;
-                case '1':
-                    printf("upper right\n");
-                    move_and_press(fd, 1024*7/8, 1024*1/8);   /* upper right */
-                    break;
-                case '2':
-                    printf("bottom left\n");
-                    move_and_press(fd, 1024*1/8, 1024*7/8);   /* bottom left */
-                    break;
-                case '3':
-                    printf("bottom right\n");
-                    move_and_press(fd, 1024*7/8, 1024*7/8);   /* bottom right */
-                    break;
-                default:
-                    printf("Unknown command '%c'\n", *p);
-                    break;
-            }
-            ++p;
-        }
-        printf("Clicks emitted\n");
-
+    if (mode == MODE_CLICK) {
+        do_clicks(fd, points_arg, p);
+    } else if (mode == MODE_MOVE) {
+        move_to_corners(fd, points_arg, p);
     }
-
-
-
 
     close(fd);
 
