@@ -147,7 +147,6 @@ int main(int argc, char** argv)
     std::string DisplayName = "";
     Display *display;
     bool start_list_devices = false;
-    bool prescale_applied = false;
 
     if (getenv("DISPLAY"))
         DisplayName = getenv("DISPLAY");
@@ -338,19 +337,17 @@ int main(int argc, char** argv)
          * space of the monitor we're drawing our window on, that way all clicks will
          * be scaled to values X11 will actually return to our program.
          */
-        Mat9 prescale;
-        mat9_set_identity(prescale);
+        Mat9 prescale = Mat9::translate_matrix((float)monitor_x/overall_width,
+                                               (float)monitor_y/overall_height) *
+                        Mat9::scale_matrix((float)monitor_width/overall_width,
+                                           (float)monitor_height/overall_height);
 
-        prescale.set((float)monitor_width/overall_width, 0, (float)monitor_x/overall_width,
-                     0, (float)monitor_height/overall_height, (float)monitor_y/overall_height,
-                     0, 0, 1);
 
         if(verbose) {
             printf("Prescaled for multi-monitors: %f,%f,%f,%f\n",prescale[0],prescale[4],prescale[2],prescale[5]);
         }
 
         calib.set_calibration(prescale);
-        prescale_applied = true;
 
     } else {
         Mat9 coeff;
@@ -367,15 +364,7 @@ int main(int argc, char** argv)
     }
 
     gui.set_add_click([&](int x, int y) -> bool{
-        float x1, y1;
-        if (prescale_applied) {
-            x1 = (float)x/monitor_width * overall_width - monitor_x;
-            y1 = (float)y/monitor_height * overall_height - monitor_y;
-        } else {
-            x1 = x;
-            y1 = y;
-        }
-        return calib.add_click(x1, y1);
+        return calib.add_click(x, y);
     });
     gui.set_reset([&](){
         return calib.reset();

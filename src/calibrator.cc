@@ -302,7 +302,12 @@ bool Calibrator::finish(int width, int height)
     coeff[7] = 0.0;
     coeff[8] = 1.0;
 
-    result_coeff = coeff;
+    /*
+     * The final matrix is the product of the current one and the computed one
+     */
+    Mat9 actual_matrix;
+    getMatrix(matrix_name, actual_matrix);
+    mat9_product(coeff, actual_matrix, result_coeff);
 
     return true;
 }
