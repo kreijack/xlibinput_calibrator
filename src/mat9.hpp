@@ -24,6 +24,16 @@
 
 #include <cassert>
 
+struct Mat9;
+void mat9_set_identity(Mat9 &m);
+void mat9_set_translate(Mat9 &out, float dx, float dy);
+void mat9_set_scale(Mat9 &out, float sx, float sy);
+void mat9_print(const Mat9 &m);
+void mat9_sum(const Mat9 &m1, Mat9 &m2);
+void mat9_product(const float c, Mat9 &m1);
+void mat9_product(const Mat9 &m1, const Mat9 &m2, Mat9 &m3);
+void mat9_invert(const Mat9 &m, Mat9 &minv);
+
 struct Mat9 {
     float coeff[9];
     float & operator[](int idx) {
@@ -44,12 +54,30 @@ struct Mat9 {
         float x7, float x8) {
             set(x0, x1, x2, x3, x4, x5, x6, x7, x8);
     }
-    Mat9() {}
+    Mat9() = default;
+    bool operator == (const Mat9 &other) const {
+        return !memcmp(coeff, other.coeff, sizeof(coeff));
+    }
+    bool operator != (const Mat9 &other) const {
+        return !(*this == other);
+    }
+
+    void set_identity() { mat9_set_identity(*this); }
+    void set_translate(float dx, float dy) { mat9_set_translate(*this, dx, dy); }
+    void set_scale(float sx, float sy) { mat9_set_scale(*this, sx, sy); }
+    void print() const { mat9_print(*this); }
+    [[nodiscard]] Mat9 invert() const;
+
+    Mat9 operator *(const Mat9 &other) const;
+    Mat9 &operator *=(const Mat9 &other);
+    Mat9 operator +(const Mat9 &other) const;
+    Mat9 &operator +=(const Mat9 &other);
+    Mat9 operator *(float other) const;
+    Mat9 &operator *=(float other);
+
+    static Mat9 identity_matrix();
+    static Mat9 translate_matrix(float dx, float dy);
+    static Mat9 scale_matrix(float sx, float sy);
 };
 
-void mat9_set_identity(Mat9 &m);
-void mat9_print(const Mat9 &m);
-void mat9_sum(const Mat9 &m1, Mat9 &m2);
-void mat9_product(const float c, Mat9 &m1);
-void mat9_product(const Mat9 &m1, const Mat9 &m2, Mat9 &m3);
-void mat9_invert(const Mat9 &m, Mat9 &minv);
+Mat9 operator *(float lth, const Mat9 &rhs);

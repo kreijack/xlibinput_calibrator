@@ -90,5 +90,356 @@ void mat9_print(const Mat9 &m) {
 
 void mat9_set_identity(Mat9 &m) {
     static const float id[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-    memcpy(m.coeff, id, sizeof(float) * 9);
+    memcpy(m.coeff, id, sizeof(m.coeff));
 }
+
+void mat9_set_translate(Mat9 &m, float dx, float dy) {
+    float translate[] = {
+        1, 0, dx,
+        0, 1, dy,
+        0, 0, 1
+    };
+    memcpy(m.coeff, translate, sizeof(m.coeff));
+};
+
+void mat9_set_scale(Mat9 &m, float sx, float sy) {
+    float scale[] = {
+        sx, 0,  0,
+        0,  sy, 0,
+        0,  0,  1
+    };
+    memcpy(m.coeff, scale, sizeof(m.coeff));
+};
+
+
+Mat9 Mat9::operator *(const Mat9 &other) const {
+    Mat9 res;
+    mat9_product(*this, other, res);
+    return res;
+}
+Mat9 & Mat9::operator *=(const Mat9 &other) {
+    Mat9 res = *this;
+    mat9_product(res, other, *this);
+    return *this;
+}
+Mat9 Mat9::operator +(const Mat9 &other) const {
+    Mat9 res = *this;
+    mat9_sum(other, res);
+    return res;
+}
+Mat9 & Mat9::operator +=(const Mat9 &other) {
+    mat9_sum(other, *this);
+    return *this;
+}
+
+Mat9 Mat9::operator *(float other) const {
+    Mat9 res = *this;
+    mat9_product(other, res);
+    return res;
+}
+Mat9 & Mat9::operator *=(float other) {
+    mat9_product(other, *this);
+    return *this;
+}
+Mat9 Mat9::invert() const {
+    Mat9 res;
+    mat9_invert(*this, res);
+    return res;
+}
+
+Mat9 Mat9::identity_matrix() {
+    Mat9 res;
+    mat9_set_identity(res);
+    return res;
+}
+Mat9 Mat9::translate_matrix(float dx, float dy) {
+    Mat9 res;
+    mat9_set_translate(res, dx, dy);
+    return res;
+}
+Mat9 Mat9::scale_matrix(float sx, float sy) {
+    Mat9 res;
+    mat9_set_scale(res, sx, sy);
+    return res;
+}
+
+Mat9 operator *(float lth, const Mat9 &rhs) {
+    return rhs * lth;
+}
+
+#ifdef TEST_MAT9
+
+#include <cassert>
+#include <cstdio>
+
+void test_mat9_set_identity() {
+    Mat9 mat;
+    mat9_set_identity(mat);
+    assert(mat.coeff[0] == 1 && mat.coeff[4] == 1 && mat.coeff[8] == 1);
+    assert(mat.coeff[1] == 0 && mat.coeff[2] == 0 && mat.coeff[3] == 0 &&
+           mat.coeff[5] == 0 && mat.coeff[6] == 0 && mat.coeff[7] == 0);
+}
+
+void test_mat9_set_translate() {
+    Mat9 mat;
+    mat9_set_translate(mat, 4, 5);
+    assert(mat.coeff[0] == 1 && mat.coeff[4] == 1 && mat.coeff[8] == 1);
+    assert(mat.coeff[1] == 0 && mat.coeff[2] == 4 && mat.coeff[3] == 0 &&
+           mat.coeff[5] == 5 && mat.coeff[6] == 0 && mat.coeff[7] == 0);
+}
+
+void test_mat9_set_scale() {
+    Mat9 mat;
+    mat9_set_scale(mat, 4, 5);
+    assert(mat.coeff[0] == 4 && mat.coeff[4] == 5 && mat.coeff[8] == 1);
+    assert(mat.coeff[1] == 0 && mat.coeff[2] == 0 && mat.coeff[3] == 0 &&
+           mat.coeff[5] == 0 && mat.coeff[6] == 0 && mat.coeff[7] == 0);
+}
+
+void test_mat9_sum() {
+    Mat9 mat1, mat2;
+    mat9_set_scale(mat1, 4, 5);
+    mat9_set_translate(mat2, 7, 8);
+    mat9_sum(mat1, mat2);
+
+    assert(mat1.coeff[0] == 4 && mat1.coeff[4] == 5 && mat1.coeff[8] == 1);
+    assert(mat1.coeff[1] == 0 && mat1.coeff[2] == 0 && mat1.coeff[3] == 0 &&
+           mat1.coeff[5] == 0 && mat1.coeff[6] == 0 && mat1.coeff[7] == 0);
+
+    assert(mat2.coeff[0] == 5 && mat2.coeff[4] == 6 && mat2.coeff[8] == 2);
+    assert(mat2.coeff[1] == 0 && mat2.coeff[2] == 7 && mat2.coeff[3] == 0 &&
+           mat2.coeff[5] == 8 && mat2.coeff[6] == 0 && mat2.coeff[7] == 0);
+
+}
+
+void test_mat9_product_scalar() {
+    Mat9 mat;
+    mat9_set_scale(mat, 4, 5);
+    mat9_product(4, mat);
+
+    assert(mat.coeff[0] == 4*4 && mat.coeff[4] == 5*4 && mat.coeff[8] == 1*4);
+    assert(mat.coeff[1] == 0 && mat.coeff[2] == 0 && mat.coeff[3] == 0 &&
+           mat.coeff[5] == 0 && mat.coeff[6] == 0 && mat.coeff[7] == 0);
+
+}
+
+void test_mat9_product() {
+    Mat9 mat1, mat2, out;
+    mat9_set_translate(mat1, 4, 5);
+    mat9_set_scale(mat2, 7, 8);
+    mat9_product(mat1, mat2, out);
+
+    assert(mat1.coeff[0] == 1 && mat1.coeff[4] == 1 && mat1.coeff[8] == 1);
+    assert(mat1.coeff[1] == 0 && mat1.coeff[2] == 4 && mat1.coeff[3] == 0 &&
+           mat1.coeff[5] == 5 && mat1.coeff[6] == 0 && mat1.coeff[7] == 0);
+
+    assert(mat2.coeff[0] == 7 && mat2.coeff[4] == 8 && mat2.coeff[8] == 1);
+    assert(mat2.coeff[1] == 0 && mat2.coeff[2] == 0 && mat2.coeff[3] == 0 &&
+           mat2.coeff[5] == 0 && mat2.coeff[6] == 0 && mat2.coeff[7] == 0);
+
+    assert(out.coeff[0] == 7 && out.coeff[1] == 0 && out.coeff[2] == 4 &&
+           out.coeff[3] == 0 && out.coeff[4] == 8 && out.coeff[5] == 5 &&
+           out.coeff[6] == 0 && out.coeff[7] == 0 && out.coeff[8] == 1);
+}
+
+void test_mat9_invert() {
+    Mat9 mat1, mat2, out, mat2_inv, res;
+
+    mat9_set_translate(mat1, 4, 5);
+    mat9_set_scale(mat2, 7, 8);
+    mat9_product(mat1, mat2, out);
+
+    mat9_invert(mat2, mat2_inv);
+    mat9_product(out, mat2_inv, res);
+
+    for (int i = 0 ; i < 9 ; i++) {
+        assert(mat1.coeff[i] == res.coeff[i]);
+    }
+
+}
+
+void test_Mat9_access() {
+    Mat9 mat1;
+
+    mat1.coeff[0] = 4;
+    mat1.coeff[1] = 5;
+
+    const Mat9 mat2 = mat1;
+
+    assert(mat2[0] == 4);
+    assert(mat2[1] == 5);
+
+    mat1[1] = 7;
+    assert(mat1[1] == 7);
+
+}
+
+void test_Mat9_set() {
+    Mat9 mat1;
+
+    mat1.set(4, 5, 6, 7, 8, 10, 11, 13, 17);
+
+    assert(mat1[0] == 4);
+    assert(mat1[1] == 5);
+    assert(mat1[8] == 17);
+}
+
+void test_Mat9_ctor() {
+    Mat9 mat1;
+
+    mat1.set(4, 5, 6, 7, 8, 10, 11, 13, 27);
+
+    assert(mat1[0] == 4);
+    assert(mat1[1] == 5);
+    assert(mat1[8] == 27);
+}
+
+void test_Mat9_eq() {
+    Mat9 mat1(4, 5, 6, 7, 8, 10, 11, 13, 19);
+    Mat9 mat2(4, 5, 6, 7, 8, 10, 11, 13, 18);
+
+    assert(!(mat1 == mat2));
+    assert(mat1 != mat2);
+    mat2[8] = 19;
+    assert(mat1 == mat2);
+}
+
+void test_Mat9_set_identity() {
+    Mat9 mat1;
+    Mat9 mat2;
+
+    mat9_set_identity(mat1);
+    mat2.set_identity();
+
+    assert(mat1 == mat2);
+}
+
+void test_Mat9_set_scale() {
+    Mat9 mat1;
+    Mat9 mat2;
+
+    mat9_set_scale(mat1, 4, 7);
+    mat2.set_scale(4, 7);
+
+    assert(mat1 == mat2);
+}
+
+void test_Mat9_set_translate() {
+    Mat9 mat1;
+    Mat9 mat2;
+
+    mat9_set_translate(mat1, 3, 7);
+    mat2.set_translate(3, 7);
+
+    assert(mat1 == mat2);
+}
+
+void test_Mat9_identity_matrix() {
+    Mat9 mat1;
+    mat9_set_identity(mat1);
+
+    assert(mat1 == Mat9::identity_matrix());
+}
+
+void test_Mat9_scale_matrix() {
+    Mat9 mat1;
+
+    mat9_set_scale(mat1, 4, 7);
+    assert(mat1 == Mat9::scale_matrix(4, 7));
+}
+
+void test_Mat9_translate_matrix() {
+    Mat9 mat1;
+
+    mat9_set_translate(mat1, 3, 7);
+    assert(mat1 == Mat9::translate_matrix(3, 7));
+}
+
+void test_Mat9_invert() {
+    Mat9 mat1, mat2, out, mat2_inv, res;
+
+    mat9_set_translate(mat1, 4, 5);
+    mat9_set_scale(mat2, 7, 8);
+
+    mat9_product(mat1, mat2, out);
+
+    mat2_inv = mat2.invert();
+    mat9_product(out, mat2_inv, res);
+
+    assert(mat1 == res);
+}
+
+void test_Mat9_operator_prod() {
+    Mat9 mat1, mat2, out;
+    mat9_set_translate(mat1, 4, 5);
+    mat9_set_scale(mat2, 7, 8);
+    mat9_product(mat1, mat2, out);
+
+    assert(out == mat1 * mat2);
+
+    mat1 *= mat2;
+    assert(out == mat1);
+}
+
+void test_Mat9_operator_prod_scalar() {
+
+    Mat9 mat;
+    mat9_set_scale(mat, 4, 5);
+    mat9_product(4, mat);
+
+    Mat9 mat2 = Mat9::scale_matrix(4, 5);
+    assert(mat == mat2 * 4);
+    assert(mat == 4 * mat2);
+
+    mat2 *= 4;
+    assert(mat == mat2);
+}
+
+void test_Mat9_operator_sum() {
+    Mat9 mat1, mat2, out;
+    mat9_set_translate(mat1, 4, 5);
+    mat9_set_scale(mat2, 7, 8);
+    out = mat2;
+    mat9_sum(mat1, out);
+
+    assert(out == mat1 + mat2);
+
+    mat1 += mat2;
+    assert(out == mat1);
+}
+
+#define TEST(x) \
+    fprintf(stderr, "Start test " #x "... "); \
+    x(); \
+    fprintf(stderr, "OK\n");
+
+int main(int argc, char **argv) {
+    TEST(test_mat9_set_identity);
+    TEST(test_mat9_set_translate);
+    TEST(test_mat9_set_scale);
+    TEST(test_mat9_sum);
+    TEST(test_mat9_product_scalar);
+    TEST(test_mat9_product);
+    TEST(test_mat9_invert);
+
+    TEST(test_Mat9_access);
+    TEST(test_Mat9_set);
+    TEST(test_Mat9_ctor);
+    TEST(test_Mat9_eq);
+    TEST(test_Mat9_invert);
+
+    TEST(test_Mat9_set_identity);
+    TEST(test_Mat9_set_translate);
+    TEST(test_Mat9_set_scale);
+
+    TEST(test_Mat9_identity_matrix);
+    TEST(test_Mat9_translate_matrix);
+    TEST(test_Mat9_scale_matrix);
+
+    TEST(test_Mat9_operator_prod);
+    TEST(test_Mat9_operator_prod_scalar);
+    TEST(test_Mat9_operator_sum);
+
+}
+
+#endif

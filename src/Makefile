@@ -12,6 +12,7 @@ clean:
 	rm -f xlibinput_calibrator
 	rm -rf .d
 	rm -f version.cc
+	rm -f test_mat9
 
 ../.git/HEAD:
 
@@ -22,6 +23,10 @@ version.cc: ../.git/HEAD ../.git/index
 
 xlibinput_calibrator: $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o xlibinput_calibrator $^ $(LIBS)
+
+test_mat9: mat9.cc mat9.hpp
+	$(CXX) $(LDFLAGS) -DTEST_MAT9 -o test_mat9 mat9.cc
+	./test_mat9
 
 # -----------------------------------
 
