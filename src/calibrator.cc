@@ -307,7 +307,7 @@ bool Calibrator::finish(int width, int height)
      */
     Mat9 actual_matrix;
     getMatrix(matrix_name, actual_matrix);
-    mat9_product(coeff, actual_matrix, result_coeff);
+    mat9_product(actual_matrix, coeff, result_coeff);
 
     return true;
 }
