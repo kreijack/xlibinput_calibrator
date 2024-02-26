@@ -1,0 +1,45 @@
+Test to perform:
+
+- open two text windows
+- in the 1st one, run: 
+    $ sudo ./uinput-touch-simulation <PATTERN>
+- press ENTER
+- in the 2nd one, execute (before the timeout of 3 seconds)
+    $ ./xlibinput_calibrator --verbose --show-xinput-cmd
+- wait the calibration completition
+- in the 1st window:
+- exit (CTRL-c) from 'uinput-touch-simulation'
+- run
+    $ sudo ./uinput-touch-simulation 3210 --move --extreme
+- in the 2nd window:
+- copy and paste the output starting from 'xinput set-float-prop '... until
+  the 9th float number
+- in the 1st window press ENTER
+- check that the mouse move from the center to the 4 corners in the following
+  order:
+  	1) center -> top left
+	2) center -> top right
+	3) center -> bottom left
+	4) center -> bottom right
+
+Repeat the test above for the following <PATTERN>:
+- 0123   (default)
+- 2031   (rotate)
+- 2301   (vertical mirror)
+- 1032   (horizontal mirror)
+- 0213   (rotate + horizontal mirror)
+- 3210   (vertical + horizontal mirror)
+ 
+
+In case of multi-monitord setup:
+- check that the in the previous test the mouse pointer movement is INSIDE the
+primary monitor. 
+- Append the following option
+   --monitor-number=-1
+to the xlibinput-calibrator command, and check that the mouse movement is
+through all the monitors.
+- Append the following option
+   --monitor-number=1
+to the xlibinput-calibrator command, and check that the mouse moves movement is
+inside the secondary monitor.
+
