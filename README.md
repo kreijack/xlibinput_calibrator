@@ -23,7 +23,7 @@ xlibinput-calibrator [opts]
   --verbose                     set verbose to on
   --display                     set X11 display server
   --dont-save                   don't update X11 setting
-  --matrix=x1,x2..x9            start coefficent matrix
+  --start-matrix=x1,x2..x9      start coefficent matrix
   --monitor-nr=<n>              show the ouput in the monitor '<n>'
   
 xlibinput-calibrator --list-devices

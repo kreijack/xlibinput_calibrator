@@ -1,3 +1,18 @@
+v0.13 - 2024-02-26
+	- better handling of multimonitor configuration
+	- corrent naming of the switch "--matrix" -> "--start-matrix"
+
+v0.12 - 2023-06-30
+	- if a touch is not found, try a device xi_mouse with
+	  calibration matrix
+	- better error message
+	- improve the README
+
+v0.11 - 2023-05-01
+	- add copyright
+	- better handling of missing $DISPLAY
+	- document how avoid Xrandr
+
 v0.10 - 2021-11-26
 	- replace the throw() with a printf() in the main()
 	- select any device using --device-id or --device-name

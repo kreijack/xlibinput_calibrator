@@ -1,8 +1,22 @@
+xlibinput-calibrator (0.13) stable; urgency=medium
+
+  * update to upstream v0.13
+
+ -- Goffredo Baroncelli <kreijack@libero.it>  26 Feb 2024 23:03:00 -0000
+
+
+xlibinput-calibrator (0.12) stable; urgency=medium
+
+  * update to upstream v0.12
+
+ -- Goffredo Baroncelli <kreijack@libero.it>  30 Jun 2023 23:03:00 -0000
+
+
 xlibinput-calibrator (0.11) stable; urgency=medium
 
   * update to upstream v0.11
 
- -- Goffredo Baroncelli <kreijack@libero.it>  Fri, 24 May 2023 23:03:00 -0000
+ -- Goffredo Baroncelli <kreijack@libero.it>  24 May 2023 23:03:00 -0000
 
 
 xlibinput-calibrator (0.10) stable; urgency=medium
